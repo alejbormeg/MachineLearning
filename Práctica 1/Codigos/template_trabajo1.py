@@ -65,14 +65,14 @@ def calc_coste1(w):
     Err=(E(w[0],w[1]))**2
     return Err 
     
-def calc_coste2(X,y,w): #X tienen que ser np.matrix, y np.array, w np.array
+def calc_coste3(X,y,w): #X tienen que ser np.matrix, y np.array, w np.array
     N=len(y) #Calculo el número de filas de y
     Err=(1/N)*np.transpose(X*w-y)*(X*w-y)
     return Err.item()
 
 
 
-eta = 0.01 
+eta = 0.1 
 maxIter = 10000000000
 error2get = 1e-14
 initial_point = np.array([1.0,1.0])
@@ -83,26 +83,6 @@ print('Funcion a minimizar: E(u,v)=(u^3*e^(v-2)-2*v^2*e^(-u))^2')
 print('Gradiente: [2*(e^(v-2)*u^3-2*v^2*e^(-u))*(2*v^2*e^(-u)+3*e^(v-2)*u^2), 2*(u^3*e^(v-2)-4*e^(-u)*v)*(u^3*e^(v-2)-2*e^(-u)*v^2)]')
 print ('Numero de iteraciones: ', it)
 print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
-
-input("\n--- Pulsar tecla para continuar ---\n")
-
-#Ejercicio 1.2
-
-def f(x,y):
-    return  (x+2)**2 + 2*(y-2)**2 + 2*np.sin(2*np.pi*x)*np.sin(2*np.pi*y)
-
-#Derivada parcial de f con respecto a x
-def dfx(x,y):
-    return 4*np.pi*np.sin(2*np.pi*y)*cos(2*np.pi*x)+2*(x+2)
-    
-#Derivada parcial de f con respecto a y
-def dfy(x,y):
-    return 4*np.pi*np.sin(2*np.pi*x)*cos(2*np.pi*y)+4*(y-2)
-
-#Gradiente de f
-def gradf(x,y):
-    return np.array([dfx(x,y), dfy(x,y)])
-
 
 # DISPLAY FIGURE
 from mpl_toolkits.mplot3d import Axes3D
@@ -121,7 +101,80 @@ ax.set(title='Ejercicio 1.2. Función sobre la que se calcula el descenso de gra
 ax.set_xlabel('u')
 ax.set_ylabel('v')
 ax.set_zlabel('E(u,v)')
+plt.show()
+input("\n--- Pulsar tecla para continuar ---\n")
 
+
+#Ejercicio 1.2
+
+def f(x,y):
+    return  (x+2)**2 + 2*(y-2)**2 + 2*np.sin(2*np.pi*x)*np.sin(2*np.pi*y)
+
+#Derivada parcial de f con respecto a x
+def dfx(x,y):
+    return 4*np.pi*np.sin(2*np.pi*y)*np.cos(2*np.pi*x)+2*(x+2)
+    
+#Derivada parcial de f con respecto a y
+def dfy(x,y):
+    return 4*np.pi*np.sin(2*np.pi*x)*np.cos(2*np.pi*y)+4*(y-2)
+
+#Gradiente de f
+def gradf(x,y):
+    return np.array([dfx(x,y), dfy(x,y)])
+
+def gradient_descent2(w,eta,num_iterations, error): #Función para el caso del ejercicio 1 b) w: puntos iniciales, eta:tasa aprendizaje, num_iterations:num max de iteraciones, error: precisión requerida
+    #
+    # gradiente descendente
+    # 
+    iterations=0 
+    Err=1000.0
+    N=1.0 #En este caso N vale 1 porque el vector de etiquetas y solo contiene un elemento que es el 0
+
+    while Err>error and iterations<num_iterations:
+       h_x=f(w[0],w[1])
+       partial_derivative=gradf(w[0],w[1])
+       w=w - (2/N)*(eta*np.transpose(partial_derivative))
+       iterations=iterations + 1 
+       Err=calc_coste3(w) 
+       print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
+       print ('Error: ', Err)
+    
+        
+    return w, iterations 
+
+def calc_coste3(w):
+    Err=(f(w[0],w[1]))**2
+    return Err 
+
+eta = 0.01 
+maxIter = 50
+error2get = 1e-14
+initial_point = np.array([-1.0,1.0])
+w, it = gradient_descent2(initial_point, eta,maxIter, error2get)
+
+print('Funcion a minimizar: E(u,v)=(u^3*e^(v-2)-2*v^2*e^(-u))^2')
+print('Gradiente: [2*(e^(v-2)*u^3-2*v^2*e^(-u))*(2*v^2*e^(-u)+3*e^(v-2)*u^2), 2*(u^3*e^(v-2)-4*e^(-u)*v)*(u^3*e^(v-2)-2*e^(-u)*v^2)]')
+print ('Numero de iteraciones: ', it)
+print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
+
+# DISPLAY FIGURE
+from mpl_toolkits.mplot3d import Axes3D
+x = np.linspace(-30, 30, 50)
+y = np.linspace(-30, 30, 50)
+X, Y = np.meshgrid(x, y)
+Z = E(X, Y) #E_w([X, Y])
+fig = plt.figure()
+ax = Axes3D(fig)
+surf = ax.plot_surface(X, Y, Z, edgecolor='none', rstride=1,
+                        cstride=1, cmap='jet')
+min_point = np.array([w[0],w[1]])
+min_point_ = min_point[:, np.newaxis]
+ax.plot(min_point_[0], min_point_[1], E(min_point_[0], min_point_[1]), 'r*', markersize=10)
+ax.set(title='Ejercicio 1.2. Función sobre la que se calcula el descenso de gradiente')
+ax.set_xlabel('u')
+ax.set_ylabel('v')
+ax.set_zlabel('E(u,v)')
+plt.show()
 input("\n--- Pulsar tecla para continuar ---\n")
 
 #Seguir haciendo el ejercicio...
