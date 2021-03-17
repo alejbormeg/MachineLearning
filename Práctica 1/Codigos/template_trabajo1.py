@@ -6,6 +6,9 @@ Nombre Estudiante:
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import cm
+from mpl_toolkits.mplot3d import Axes3D
+
 
 np.random.seed(1)
 
@@ -33,17 +36,12 @@ def gradient_descent(w,eta,num_iterations, error): #Función para el caso del ej
     # 
     iterations=0 
     Err=1000.0
-    N=1.0 #En este caso N vale 1 porque el vector de etiquetas y solo contiene un elemento que es el 0
 
     while Err>error and iterations<num_iterations:
-       h_x=E(w[0],w[1])
        partial_derivative=gradE(w[0],w[1])
-       w=w - (2/N)*(eta*np.transpose(partial_derivative))
+       w=w - eta*partial_derivative
        iterations=iterations + 1 
-       Err=calc_coste1(w) 
-       print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
-       print ('Error: ', Err)
-    
+       Err=E(w[0],w[1]) #Preguntar entre usar esto y el error cuadrático medio
         
     return w, iterations    
 
@@ -57,15 +55,11 @@ def gradient_descent_linear_regresion(X,y,w,eta,num_iterations):
         partial_derivative = np.transpose(h_x - y)*X #multiplico el vector fila transpose(h_x-y) por X así consigo la sum de 1 a N de el xnj*(h(xn)-yn) en cada componente del vector patial_derivative
         w=w - (2/N)*(eta*np.transpose(partial_derivative))
         iterations=iterations + 1 
-        Err=calc_coste2(w)
+        Err=calc_coste(w)
         
         
-        
-def calc_coste1(w):
-    Err=(E(w[0],w[1]))**2
-    return Err 
     
-def calc_coste3(X,y,w): #X tienen que ser np.matrix, y np.array, w np.array
+def calc_coste(X,y,w): #X tienen que ser np.matrix, y np.array, w np.array
     N=len(y) #Calculo el número de filas de y
     Err=(1/N)*np.transpose(X*w-y)*(X*w-y)
     return Err.item()
@@ -85,7 +79,6 @@ print ('Numero de iteraciones: ', it)
 print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
 
 # DISPLAY FIGURE
-from mpl_toolkits.mplot3d import Axes3D
 x = np.linspace(-30, 30, 50)
 y = np.linspace(-30, 30, 50)
 X, Y = np.meshgrid(x, y)
@@ -129,57 +122,140 @@ def gradient_descent2(w,eta,num_iterations, error): #Función para el caso del e
     iterations=0 
     Err=1000.0
     N=1.0 #En este caso N vale 1 porque el vector de etiquetas y solo contiene un elemento que es el 0
-
+    vector_puntos=np.array([[w[0],w[1]]])
     while Err>error and iterations<num_iterations:
        h_x=f(w[0],w[1])
        partial_derivative=gradf(w[0],w[1])
-       w=w - (2/N)*(eta*np.transpose(partial_derivative))
+       w=w -(eta*np.transpose(partial_derivative))
        iterations=iterations + 1 
-       Err=calc_coste3(w) 
-       print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
-       print ('Error: ', Err)
+       Err=f(w[0],w[1])
+       vector_puntos=np.append(vector_puntos, [[w[0],w[1]]], axis=0)
+          
     
-        
-    return w, iterations 
+    return w, iterations, vector_puntos
 
-def calc_coste3(w):
-    Err=(f(w[0],w[1]))**2
-    return Err 
+
 
 eta = 0.01 
 maxIter = 50
 error2get = 1e-14
 initial_point = np.array([-1.0,1.0])
-w, it = gradient_descent2(initial_point, eta,maxIter, error2get)
+w, it, vector_puntos = gradient_descent2(initial_point, eta,maxIter, error2get)
 
-print('Funcion a minimizar: E(u,v)=(u^3*e^(v-2)-2*v^2*e^(-u))^2')
-print('Gradiente: [2*(e^(v-2)*u^3-2*v^2*e^(-u))*(2*v^2*e^(-u)+3*e^(v-2)*u^2), 2*(u^3*e^(v-2)-4*e^(-u)*v)*(u^3*e^(v-2)-2*e^(-u)*v^2)]')
+print('Funcion a minimizar: f(x,y)=(x+2)^2 + 2*(y-2)^2 + 2*sin(2*pi*x)*sin(2*pi*y)')
+print('Gradiente: [4*pi*sin(2*pi*y)*cos(2*pi*x)+2*(x+2), 4*pi*sin(2*pi*x)*cos(2*pi*y)+4*(y-2)]')
 print ('Numero de iteraciones: ', it)
 print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
 
 # DISPLAY FIGURE
-from mpl_toolkits.mplot3d import Axes3D
-x = np.linspace(-30, 30, 50)
-y = np.linspace(-30, 30, 50)
+
+x = np.linspace(-0.5, -1.5, 50)
+y = np.linspace(0.5, 1.5, 50)
 X, Y = np.meshgrid(x, y)
-Z = E(X, Y) #E_w([X, Y])
+Z = f(X, Y) #E_w([X, Y])
 fig = plt.figure()
 ax = Axes3D(fig)
-surf = ax.plot_surface(X, Y, Z, edgecolor='none', rstride=1,
-                        cstride=1, cmap='jet')
-min_point = np.array([w[0],w[1]])
-min_point_ = min_point[:, np.newaxis]
-ax.plot(min_point_[0], min_point_[1], E(min_point_[0], min_point_[1]), 'r*', markersize=10)
-ax.set(title='Ejercicio 1.2. Función sobre la que se calcula el descenso de gradiente')
-ax.set_xlabel('u')
-ax.set_ylabel('v')
-ax.set_zlabel('E(u,v)')
+surf = ax.plot_surface(X, Y, Z,edgecolor='none', rstride=1,
+                        cstride=1, cmap=cm.coolwarm,linewidth=0)
+min_point=vector_puntos
+
+for i in min_point:
+    ax.plot(i[0],i[1],f(i[0],i[1]), 'r*' , markersize=10)
+
+
+ax.set(title='Ejercicio 1.3 f(x,y) con eta=0.01')
+ax.set_xlabel('y')
+ax.set_ylabel('x')
+ax.set_zlabel('f(x,y)')
+ax.view_init(70, 60) #Uso esta función para rotar el gráfico y que se vea mejor cómo funciona el gradiente descendente el primer parámetro es la elevación y el segundo el ángulo de rotación de la cámara
+plt.draw()
 plt.show()
 input("\n--- Pulsar tecla para continuar ---\n")
 
-#Seguir haciendo el ejercicio...
+eta = 0.1 
+
+initial_point = np.array([-1.0,1.0])
+w, it, vector_puntos = gradient_descent2(initial_point, eta,maxIter, error2get)
+print('Funcion a minimizar: f(x,y)=(x+2)^2 + 2*(y-2)^2 + 2*sin(2*pi*x)*sin(2*pi*y)')
+print('Gradiente: [4*pi*sin(2*pi*y)*cos(2*pi*x)+2*(x+2), 4*pi*sin(2*pi*x)*cos(2*pi*y)+4*(y-2)]')
+print ('Numero de iteraciones: ', it)
+print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
+# DISPLAY FIGURE
+
+x = np.linspace(-10, 10, 50)
+y = np.linspace(-10, 10, 50)
+X, Y = np.meshgrid(x, y)
+Z = f(X, Y) #E_w([X, Y])
+fig = plt.figure()
+ax = Axes3D(fig)
+surf = ax.plot_surface(X, Y, Z,edgecolor='none', rstride=1,
+                        cstride=1, cmap=cm.coolwarm,linewidth=0) #He usado cm.coolwarm porque dibuja con colores más suaves el gráfico
+min_point=vector_puntos
+
+for i in min_point:
+    ax.plot(i[0],i[1],f(i[0],i[1]), 'r*' , markersize=10) #del vector de puntos devuelto por la función gradient_descent2 voy representando cada punto.
 
 
+ax.set(title='Ejercicio 1.3 f(x,y) con eta=0.1')
+ax.set_xlabel('y')
+ax.set_ylabel('x')
+ax.set_zlabel('f(x,y)')
+ax.view_init(70, 60) #Uso esta función para rotar el gráfico y que se vea mejor cómo funciona el gradiente descendente el primer parámetro es la elevación y el segundo el ángulo de rotación de la cámara
+plt.draw()
+plt.show()
+input("\n--- Pulsar tecla para continuar ---\n")
+
+eta = 0.01
+x=-0.5
+y=-0.5 
+maxIter = 50
+error2get = 1e-14
+initial_point = np.array([x,y])
+w, it, vector_puntos = gradient_descent2(initial_point, eta,maxIter, error2get)
+print('Puntos iniciales (x,y)= (',x, ',', y,')')
+print ('Numero de iteraciones: ', it)
+print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
+print ('valor obtenido: ', f(w[0],w[1]))
+
+print("\n--------------------------\n")
+x=1
+y=1
+initial_point = np.array([x,y])
+w, it, vector_puntos = gradient_descent2(initial_point, eta,maxIter, error2get)
+print('Puntos iniciales (x,y)= (',x, ',', y,')')
+print ('Numero de iteraciones: ', it)
+print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
+print ('valor obtenido: ', f(w[0],w[1]))
+
+print("\n--------------------------\n")
+x=2.1
+y=-2.1
+initial_point = np.array([x,y])
+w, it, vector_puntos = gradient_descent2(initial_point, eta,maxIter, error2get)
+print('Puntos iniciales (x,y)= (',x, ',', y,')')
+print ('Numero de iteraciones: ', it)
+print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
+print ('valor obtenido: ', f(w[0],w[1]))
+
+print("\n--------------------------\n")
+x=-3
+y=3
+initial_point = np.array([x,y])
+w, it, vector_puntos = gradient_descent2(initial_point, eta,maxIter, error2get)
+print('Puntos iniciales (x,y)= (',x, ',', y,')')
+print ('Numero de iteraciones: ', it)
+print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
+print ('valor obtenido: ', f(w[0],w[1]))
+
+print("\n--------------------------\n")
+x=-2
+y=2
+initial_point = np.array([x,y])
+w, it, vector_puntos = gradient_descent2(initial_point, eta,maxIter, error2get)
+print('Puntos iniciales (x,y)= (',x, ',', y,')')
+print ('Numero de iteraciones: ', it)
+print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
+print ('valor obtenido: ', f(w[0],w[1]))
 
 
 
