@@ -145,9 +145,9 @@ w, it, vector_puntos = gradient_descent2(initial_point, eta,maxIter, error2get)
 print('Funcion a minimizar: f(x,y)=(x+2)^2 + 2*(y-2)^2 + 2*sin(2*pi*x)*sin(2*pi*y)')
 print('Gradiente: [4*pi*sin(2*pi*y)*cos(2*pi*x)+2*(x+2), 4*pi*sin(2*pi*x)*cos(2*pi*y)+4*(y-2)]')
 print ('Numero de iteraciones: ', it)
-print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
+print ('Coordenadas obtenidas con eta=0.01 : (', w[0], ', ', w[1],')')
 
-# DISPLAY FIGURE
+################## DISPLAY FIGURE ##############################
 
 x = np.linspace(-0.5, -1.5, 50)
 y = np.linspace(0.5, 1.5, 50)
@@ -179,8 +179,9 @@ w, it, vector_puntos = gradient_descent2(initial_point, eta,maxIter, error2get)
 print('Funcion a minimizar: f(x,y)=(x+2)^2 + 2*(y-2)^2 + 2*sin(2*pi*x)*sin(2*pi*y)')
 print('Gradiente: [4*pi*sin(2*pi*y)*cos(2*pi*x)+2*(x+2), 4*pi*sin(2*pi*x)*cos(2*pi*y)+4*(y-2)]')
 print ('Numero de iteraciones: ', it)
-print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
-# DISPLAY FIGURE
+print ('Coordenadas obtenidas con eta=0.1: (', w[0], ', ', w[1],')')
+
+################## DISPLAY FIGURE ##############################
 
 x = np.linspace(-10, 10, 50)
 y = np.linspace(-10, 10, 50)
@@ -258,9 +259,8 @@ print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
 print ('valor obtenido: ', f(w[0],w[1]))
 
 
+input("\n--- Pulsar tecla para continuar ---\n")
 
-
-'''
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -294,17 +294,34 @@ def readData(file_x, file_y):
 
 # Funcion para calcular el error
 def Err(x,y,w):
-    return 
+    N=len(y) #Calculo el número de filas de y
+    producto=x.dot(w)
+    Err=(1/N)*(np.transpose(producto-y).dot(producto-y))
+    print('El error obtenido es: ', Err)
+    return Err.item()
+ 
 
 # Gradiente Descendente Estocastico
-def sgd(?):
-    #
+def sgd(x,y,eta,num_iterations,error,tam_Minibatch=1):
+    N=len(y)
+    iterations=0 
+    Error=1000.0
+    w=np.array([[1.],[1.],[1.]])
+
+    while Error>error and iterations<num_iterations:
+        h_x= np.dot(x,w)
+        
+        partial_derivative = np.dot(np.transpose(h_x - y),x) #multiplico el vector fila transpose(h_x-y) por X así consigo la sum de 1 a N de el xnj*(h(xn)-yn) en cada componente del vector patial_derivative
+        w=w - (2/N)*(eta*np.transpose(partial_derivative))
+        iterations=iterations + 1 
+        Error= Err(x,y,w)
+    
     return w
 
 # Pseudoinversa	
-def pseudoinverse(?):
+#def pseudoinverse(?):
     #
-    return w
+#    return w
 
 
 # Lectura de los datos de entrenamiento
@@ -312,8 +329,13 @@ x, y = readData('datos/X_train.npy', 'datos/y_train.npy')
 # Lectura de los datos para el test
 x_test, y_test = readData('datos/X_test.npy', 'datos/y_test.npy')
 
+y=y.reshape(-1,1) #redimensionamos el vector para convertirlo en un vector columna
+y_test=y_test.reshape(-1,1) #redimensionamos el vector para convertirlo en un vector columna
+num_iterations=10000
+errorerror2get = 1e-14
 
-w = sgd(?)
+
+w = sgd(x,y,eta,num_iterations,error2get,tam_Minibatch=1)
 print ('Bondad del resultado para grad. descendente estocastico:\n')
 print ("Ein: ", Err(x,y,w))
 print ("Eout: ", Err(x_test, y_test, w))
@@ -327,6 +349,7 @@ print('Ejercicio 2\n')
 def simula_unif(N, d, size):
 	return np.random.uniform(-size,size,(N,d))
 
+'''
 def sign(x):
 	if x >= 0:
 		return 1
