@@ -297,7 +297,6 @@ def Err(x,y,w):
     N=len(y) #Calculo el número de filas de y
     producto=x.dot(w)
     Err=(1/N)*(np.transpose(producto-y).dot(producto-y))
-    print('El error obtenido es: ', Err)
     return Err.item()
  
 
@@ -306,12 +305,17 @@ def sgd(x,y,eta,num_iterations,error,tam_Minibatch=1):
     N=len(y)
     iterations=0 
     Error=1000.0
-    w=np.array([[1.],[1.],[1.]])
-
+    w=np.array([[1.],[1.],[1.]]) #A que valor inicializar w
+    
     while Error>error and iterations<num_iterations:
-        h_x= np.dot(x,w)
-        
-        partial_derivative = np.dot(np.transpose(h_x - y),x) #multiplico el vector fila transpose(h_x-y) por X así consigo la sum de 1 a N de el xnj*(h(xn)-yn) en cada componente del vector patial_derivative
+        #################################### Tomamos 10 filas aleatorias de la matriz x #####################################
+        #Idea tomada de https://www.it-swarm-es.com/es/python/numpy-obtener-un-conjunto-aleatorio-de-filas-de-la-matriz-2d/1069900142/
+        # con random choice elegimos de un conjunto de x.shape[0] (filas de x) elementos tantos como indique la variable tam_minibatch y sin reemplazamiento   
+        filas=np.random.choice(x.shape[0], size=tam_Minibatch, replace=False)
+        x_mini=x[filas,:] 
+        y_mini=y[filas]
+        h_x= np.dot(x_mini,w)
+        partial_derivative = np.dot(np.transpose(h_x - y_mini),x_mini) #multiplico el vector fila transpose(h_x-y) por X así consigo la sum de 1 a N de el xnj*(h(xn)-yn) en cada componente del vector patial_derivative
         w=w - (2/N)*(eta*np.transpose(partial_derivative))
         iterations=iterations + 1 
         Error= Err(x,y,w)
@@ -319,9 +323,12 @@ def sgd(x,y,eta,num_iterations,error,tam_Minibatch=1):
     return w
 
 # Pseudoinversa	
-#def pseudoinverse(?):
+def pseudoinverse(x,y,w):
     #
-#    return w
+    pseudoinverse=np.linalg.pinv(np.transpose(x).dot(x))
+    X=pseudoinverse.dot(np.transpose(x));
+    w=X.dot(y);
+    return w
 
 
 # Lectura de los datos de entrenamiento
@@ -329,14 +336,24 @@ x, y = readData('datos/X_train.npy', 'datos/y_train.npy')
 # Lectura de los datos para el test
 x_test, y_test = readData('datos/X_test.npy', 'datos/y_test.npy')
 
-y=y.reshape(-1,1) #redimensionamos el vector para convertirlo en un vector columna
-y_test=y_test.reshape(-1,1) #redimensionamos el vector para convertirlo en un vector columna
+y=y.reshape(-1,1) #redimensionamos el vector para convertirlo en un vector columna pongo -1 porque a priori no se cuantas filas saldrán
+y_test=y_test.reshape(-1,1) #redimensionamos el vector para convertirlo en un vector columna pongo -1 porque a priori no se cuantas filas saldrán
 num_iterations=10000
 errorerror2get = 1e-14
+eta=0.1
 
-
-w = sgd(x,y,eta,num_iterations,error2get,tam_Minibatch=1)
+w = sgd(x,y,eta,num_iterations,error2get,tam_Minibatch=10)
 print ('Bondad del resultado para grad. descendente estocastico:\n')
+print('Uso eta=0.1, error=1e-14 , max_iteraciones=10000 y w inicializado a [1. 1. 1.]')
+print('w final: ', w)
+print ("Ein: ", Err(x,y,w))
+print ("Eout: ", Err(x_test, y_test, w))
+
+################################################################# Pseudoinversa #####################################################
+
+print ('\n Bondad del resultado para algoritmo de la pseudoinversa:\n')
+w=pseudoinverse(x,y,w)
+print('w final: ', w)
 print ("Ein: ", Err(x,y,w))
 print ("Eout: ", Err(x_test, y_test, w))
 
