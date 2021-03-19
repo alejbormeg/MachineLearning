@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
-
+import pandas as pd
 
 np.random.seed(1)
 
@@ -366,15 +366,73 @@ print('Ejercicio 2\n')
 def simula_unif(N, d, size):
 	return np.random.uniform(-size,size,(N,d))
 
-'''
+
 def sign(x):
 	if x >= 0:
 		return 1
 	return -1
 
-def f(x1, x2):
-	return sign(?) 
+def f1(x1, x2):
+    x=(x1-0.2)**2 + x2**2 -0.6
+    return sign(x)
 
 #Seguir haciendo el ejercicio...
 
-'''
+#APARTADO a)
+X=simula_unif(1000,2,1)
+
+# Dibujo el Scatter Plot
+plt.scatter(X[:,0],X[:,1], c='blue')
+
+#Los muestro todos juntos
+plt.show();
+
+
+#Apartado b)
+y=[]
+for i in X:
+    y.append(f1(i[0],i[1]))
+
+
+X_=pd.DataFrame(data=X); #Convierto la matriz X en un Dataframe de Pandas, que es más cómodo de usar 
+X_=X_.sample(frac=0.10,random_state=1); #Hacemos que tome un 10% de los datos de forma aleatoria
+
+for i in X_.index:
+    y[i]=y[i]*-1 #Cambio el signo de esos elementos
+
+
+plt.scatter(X[:,0],X[:,1], c=y) #Uso el vector y como vector de colores
+
+#Muestro el gráfico
+plt.show();
+
+#Apartado c)
+#Concatenamos El vector de unos con la matriz X, para ello  usamos np.concatenate especificando que es por columnas (axis=1)
+y=np.array(y)
+y=y.reshape(-1,1) #convertimos y en un vector columna 
+unos=np.ones((X.shape[0],1))
+X=np.concatenate((unos,X),axis=1)
+
+w = sgd(X,y,eta,num_iterations,error2get,tam_Minibatch=10)
+print ('Bondad del resultado para grad. descendente estocastico:\n')
+print('Uso eta=0.1, error=1e-14 , max_iteraciones=10000 y w inicializado a [1. 1. 1.]')
+print('w final: ', w)
+print ("Ein: ", Err(X,y,w))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
