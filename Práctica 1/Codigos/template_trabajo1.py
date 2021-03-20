@@ -305,8 +305,8 @@ def sgd(x,y,eta,num_iterations,error,tam_Minibatch=1):
     N=len(y)
     iterations=0 
     Error=1000.0
-    w=np.array([[1.],[1.],[1.]]) #A que valor inicializar w
-    
+    w=np.ones(x.shape[1]) #A que valor inicializar w
+    w=w.reshape(-1,1)
     while Error>error and iterations<num_iterations:
         #################################### Tomamos 10 filas aleatorias de la matriz x #####################################
         #Idea tomada de https://www.it-swarm-es.com/es/python/numpy-obtener-un-conjunto-aleatorio-de-filas-de-la-matriz-2d/1069900142/
@@ -379,6 +379,8 @@ def f1(x1, x2):
 #Seguir haciendo el ejercicio...
 
 #APARTADO a)
+np.random.seed(2)
+
 X=simula_unif(1000,2,1)
 
 # Dibujo el Scatter Plot
@@ -420,19 +422,158 @@ print('w final: ', w)
 print ("Ein: ", Err(X,y,w))
 
 
+#Apartado d)
+
+Ein=0
+E_out=0
+'''
+for i in range(100):
+    print ("iteracion: ", i)
+    X=simula_unif(1000,2,1)
+    y=[]
+    for i in X:
+        y.append(f1(i[0],i[1]))
+        
+    X_=pd.DataFrame(data=X); #Convierto la matriz X en un Dataframe de Pandas, que es más cómodo de usar 
+    X_=X_.sample(frac=0.10,random_state=1); #Hacemos que tome un 10% de los datos de forma aleatoria
+
+    for i in X_.index:
+        y[i]=y[i]*-1 #Cambio el signo de esos elementos
+    
+    y=np.array(y)
+    y=y.reshape(-1,1) #convertimos y en un vector columna 
+    unos=np.ones((X.shape[0],1))
+    X=np.concatenate((unos,X),axis=1)
+    w = sgd(X,y,eta,num_iterations,error2get,tam_Minibatch=10)
+    Ein+=Err(X,y,w)
+    X=simula_unif(1000,2,1) #Generamos 1000 datos nuevos 
+    X=np.concatenate((unos,X),axis=1)
+    
+    ###########################PREPARAMOS EL TEST SET ###########################
+    y=[]
+    for i in X:
+        y.append(f1(i[0],i[1])) #Generamos las etiquetas para los nuevos datos
+    y=np.array(y)
+    y=y.reshape(-1,1) #convertimos y en un vector columna 
+    E_out += Err(X,y,w)
+'''
+
+print ('Tras mil iteraciones repitiendo el ejemplo anterior:\n')
+print ("Ein medio: ", Ein/100.0)   
+print ("Eout medio: ", E_out/100.0)   
+input("\n--- Pulsar tecla para continuar ---\n")
 
 
 
+#################################################################################################
+#################################################################################################
+#################################################################################################
+#################### Mismo experimento con distinto vector de características####################
+
+#APARTADO a)
+np.random.seed(2)
+
+X=simula_unif(1000,2,1)
+
+# Dibujo el Scatter Plot
+plt.scatter(X[:,0],X[:,1], c='blue')
+
+#Los muestro todos juntos
+plt.show();
 
 
+#Apartado b)
+y=[]
+for i in X:
+    y.append(f1(i[0],i[1]))
 
 
+X_=pd.DataFrame(data=X); #Convierto la matriz X en un Dataframe de Pandas, que es más cómodo de usar 
+X_=X_.sample(frac=0.10,random_state=1); #Hacemos que tome un 10% de los datos de forma aleatoria
+
+for i in X_.index:
+    y[i]=y[i]*-1 #Cambio el signo de esos elementos
 
 
+plt.scatter(X[:,0],X[:,1], c=y) #Uso el vector y como vector de colores
+
+#Muestro el gráfico
+plt.show()
+
+#Apartado c)
+#Concatenamos El vector de unos con la matriz X, para ello  usamos np.concatenate especificando que es por columnas (axis=1)
+y=np.array(y)
+y=y.reshape(-1,1) #convertimos y en un vector columna 
 
 
+############### Preparamos la nueva matriz de características
+x1x2=X[:,0]*X[:,1] #multiplicación de las dos columnas elemento a elemento
+x1x2=x1x2.reshape(-1,1)
+x1_cuadrado=X[:,0]*X[:,0] 
+x1_cuadrado=x1_cuadrado.reshape(-1,1)
+x2_cuadrado=X[:,1]*X[:,1] 
+x2_cuadrado=x2_cuadrado.reshape(-1,1)
+unos=np.ones((X.shape[0],1))
+X=np.concatenate((unos,X,x1x2,x1_cuadrado,x2_cuadrado),axis=1) #Unimos por columnas todo
+
+w = sgd(X,y,eta,num_iterations,error2get,tam_Minibatch=10)
+print ('Bondad del resultado para grad. descendente estocastico:\n')
+print('Uso eta=0.1, error=1e-14 , max_iteraciones=10000 y w inicializado a [1. 1. 1.]')
+print('w final: ', w)
+print ("Ein: ", Err(X,y,w)) #Me sale Ein:  0.608731055311969 mejora
 
 
+##################################Experimento con 1000 iteraciones##################################
+Ein=0
+E_out=0
 
+for i in range(100):
+    print ("iteracion: ", i)
+    X=simula_unif(1000,2,1)
+    y=[]
+    for i in X:
+        y.append(f1(i[0],i[1]))
+        
+    X_=pd.DataFrame(data=X); #Convierto la matriz X en un Dataframe de Pandas, que es más cómodo de usar 
+    X_=X_.sample(frac=0.10,random_state=1); #Hacemos que tome un 10% de los datos de forma aleatoria
 
+    for i in X_.index:
+        y[i]=y[i]*-1 #Cambio el signo de esos elementos
+    
+    y=np.array(y)
+    y=y.reshape(-1,1) #convertimos y en un vector columna 
+    x1x2=X[:,0]*X[:,1] #multiplicación de las dos columnas elemento a elemento
+    x1x2=x1x2.reshape(-1,1)
+    x1_cuadrado=X[:,0]*X[:,0] 
+    x1_cuadrado=x1_cuadrado.reshape(-1,1)
+    x2_cuadrado=X[:,1]*X[:,1] 
+    x2_cuadrado=x2_cuadrado.reshape(-1,1)
+    unos=np.ones((X.shape[0],1))
+    X=np.concatenate((unos,X,x1x2,x1_cuadrado,x2_cuadrado),axis=1) #Unimos por columnas todo
+    w = sgd(X,y,eta,num_iterations,error2get,tam_Minibatch=10)
+    Ein+=Err(X,y,w)
+   
+    
+    ###########################PREPARAMOS EL TEST SET ###########################
+    X=simula_unif(1000,2,1) #Generamos 1000 datos nuevos 
+    x1x2=X[:,0]*X[:,1] #multiplicación de las dos columnas elemento a elemento
+    x1x2=x1x2.reshape(-1,1)
+    x1_cuadrado=X[:,0]*X[:,0] 
+    x1_cuadrado=x1_cuadrado.reshape(-1,1)
+    x2_cuadrado=X[:,1]*X[:,1] 
+    x2_cuadrado=x2_cuadrado.reshape(-1,1)
+    X=np.concatenate((unos,X,x1x2,x1_cuadrado,x2_cuadrado),axis=1) #Unimos por columnas todo
+    y=[]
+    for i in X:
+        y.append(f1(i[0],i[1])) #Generamos las etiquetas para los nuevos datos
+    y=np.array(y)
+    y=y.reshape(-1,1) #convertimos y en un vector columna 
+    E_out += Err(X,y,w)
+
+print ('Tras mil iteraciones repitiendo el ejemplo anterior:\n')
+print ("Ein medio: ", Ein/100.0)   
+print ("Eout medio: ", E_out/100.0)   
+input("\n--- Pulsar tecla para continuar ---\n")
+
+#### Mis resultados---> Ein medio:  0.5883792408813793  Eout medio:  1.2217528079915623
 
