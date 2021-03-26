@@ -432,17 +432,44 @@ print('Uso eta=0.1, error=1e-14 , max_iteraciones=10000 y w inicializado a [1. 1
 print('w final: ', w)
 print ("Ein: ", Err(X,y,w))
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-ax.scatter(X[:,1], X[:,2], y , marker='.', c=y)
+y0 = np.where(y == -1)
+y1 = np.where(y == 1)
+#Hacemos 3 arrays para separar los indices de las clases 0,1 y 2
+x_2 = np.array([X[y0[0]],X[y1[0]]])
 
-xs = np.tile(np.arange(-2,2), (4,1))
-ys = np.tile(np.arange(-2,2), (4,1)).T
-zs = xs*w[1]+ys*w[2]+w[0]
+plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'purple', label = '1')
+plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'yellow', label = '-1')
+t = np.linspace(-0.1,0.35, 100)
+plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red')
+plt.legend();
+plt.title("Ejercicio2.2")
 
-#ax.plot_surface(xs,ys,zs, alpha=0.5)
-ax.contourf(xs,ys,zs, zdir='z', offset=np.min(zs), cmap=cm.ocean)
+plt.figure()
 plt.show()
+
+w=np.ones(x.shape[1]) #Inicializo w a un vector de unos del tamaño de las columnas de x
+w=w.reshape(-1,1) #Lo transformo en un vector columna
+w = pseudoinverse(X,y,w)
+print ('Bondad del resultado para pseudoinversa:\n')
+print('Uso eta=0.1, error=1e-14 , max_iteraciones=10000 y w inicializado a [1. 1. 1.]')
+print('w final: ', w)
+print ("Ein: ", Err(X,y,w))
+
+y0 = np.where(y == -1)
+y1 = np.where(y == 1)
+#Hacemos 3 arrays para separar los indices de las clases 0,1 y 2
+x_2 = np.array([X[y0[0]],X[y1[0]]])
+
+plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'purple', label = '1')
+plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'yellow', label = '-1')
+t = np.linspace(-0.1,0.35, 100)
+plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red')
+plt.legend();
+plt.title("Ejercicio2.2")
+
+plt.figure()
+plt.show()
+
 input("\n--- Pulsar tecla para continuar ---\n")
 
 
@@ -555,21 +582,27 @@ print('Uso eta=0.1, error=1e-14 , max_iteraciones=10000 y w inicializado a [1. 1
 print('w final: ', w)
 print ("Ein: ", Err(X,y,w)) 
 
+y0 = np.where(y == -1)
+y1 = np.where(y == 1)
+#Hacemos 3 arrays para separar los indices de las clases 0,1 y 2
+x_2 = np.array([X[y0[0]],X[y1[0]]])
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-ax.scatter(X[:,1], X[:,2], y , marker='.', c=y)
+plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'purple', label = '1')
+plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'yellow', label = '-1')
+t = np.linspace(-0.1,0.35, 100)
+plt.legend();
+plt.title("Ejercicio2.2")
 
-xs = np.tile(np.arange(-1,2), (3,1))
-ys = np.tile(np.arange(-1,2), (3,1)).T
-zs = w[0]+xs*w[1]+ys*w[2]+ xs*ys*w[3]+ xs*xs* w[4] + ys*ys*w[5]
-
-#ax.plot_surface(xs,ys,zs, alpha=0.5)
-ax.contourf(xs,ys,zs, zdir='z', offset=np.min(zs), cmap='PuBu')
-
-ax.view_init(100, 90) #Uso esta función para rotar el gráfico y que se vea mejor cómo funciona el gradiente descendente el primer parámetro es la elevación y el segundo el ángulo de rotación de la cámara
-
+plt.figure()
 plt.show()
+
+w=np.ones(x.shape[1]) #Inicializo w a un vector de unos del tamaño de las columnas de x
+w=w.reshape(-1,1) #Lo transformo en un vector columna
+w = pseudoinverse(X,y,w)
+print ('Bondad del resultado para pseudoinversa:\n')
+print('Uso eta=0.1, error=1e-14 , max_iteraciones=10000 y w inicializado a [1. 1. 1.]')
+print('w final: ', w)
+print ("Ein: ", Err(X,y,w))
 input("\n--- Pulsar tecla para continuar ---\n")
 
 ############################################# Apartado d) #########################################################################
