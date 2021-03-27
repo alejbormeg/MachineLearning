@@ -109,8 +109,6 @@ def gradient_descent2(w,eta,num_iterations): #Función para el caso del ejercici
     # gradiente descendente
     # 
     iterations=0 
-    Err=1000.0
-    N=1.0 #En este caso N vale 1 porque el vector de etiquetas y solo contiene un elemento que es el 0
     vector_puntos=np.array([[w[0],w[1]]])
     while iterations<num_iterations:
        h_x=f(w[0],w[1])
@@ -326,16 +324,17 @@ print('Uso eta=0.1, error=1e-14 , max_iteraciones=200 y w inicializado a un vect
 print('w final: ', w)
 print ("Ein: ", Err(x,y,w))
 print ("Eout: ", Err(x_test, y_test, w)) #Comprobamos como de bueno es el ajuste con los datos del Test set
-###### DIBUJO NUBE DE PUNTOS DE X ######## Estudiar como se hacen proyecciones en 2D
+
+###### DIBUJO NUBE DE PUNTOS DE X ######## Este código está basado en el código de una compañera de prácticas, Celia Arias Martínez
 y0 = np.where(y == -1)
 y1 = np.where(y == 1)
-#Hacemos 3 arrays para separar los indices de las clases 0,1 y 2
+#Hacemos 3 arrays para separar los indices de las clases 0,1 y 2 
 x_2 = np.array([x[y0[0]],x[y1[0]]])
 
 plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'blue', label = '1')
 plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'orange', label = '5')
 t = np.linspace(0,1, 100)
-plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red')
+plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
 plt.legend();
 plt.title("Ejercicio1")
 
@@ -350,7 +349,7 @@ print('w final: ', w)
 print ("Ein: ", Err(x,y,w))
 print ("Eout: ", Err(x_test, y_test, w))
 
-###### DIBUJO NUBE DE PUNTOS DE X ######## Estudiar como se hacen proyecciones en 2D
+###### DIBUJO NUBE DE PUNTOS DE X ######## Mismo procedimiento de antes
 y0 = np.where(y == -1)
 y1 = np.where(y == 1)
 #Hacemos 3 arrays para separar los indices de las clases 0,1 y 2
@@ -395,7 +394,9 @@ X=simula_unif(1000,2,1) #Genero mil puntos en el cuadrado [-1,1]x[-1,1]
 # Dibujo el Scatter Plot de los puntos generados
 plt.scatter(X[:,0],X[:,1], c='blue')
 #Los muestro todos juntos
+plt.title('Ejercicio2.2 a) Puntos generados')
 plt.show();
+
 input("\n--- Pulsar tecla para continuar ---\n")
 
 
@@ -414,6 +415,8 @@ for i in X_.index:
 plt.scatter(X[:,0],X[:,1], c=y) #Uso el vector y como vector de colores
 
 #Muestro el gráfico
+plt.title('Ejercicio2.2 b) coloreo los puntos por etiquetas')
+
 plt.show();
 input("\n--- Pulsar tecla para continuar ---\n")
 
@@ -428,7 +431,7 @@ X=np.concatenate((unos,X),axis=1)
 
 w = sgd(X,y,eta,num_iterations,error2get,32)
 print ('Bondad del resultado para grad. descendente estocastico:\n')
-print('Uso eta=0.1, error=1e-14 , max_iteraciones=10000 y w inicializado a [1. 1. 1.]')
+print('Uso eta=0.1, error=1e-14 , max_iteraciones=200 y w inicializado a [1. 1. 1.]')
 print('w final: ', w)
 print ("Ein: ", Err(X,y,w))
 
@@ -442,7 +445,7 @@ plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'yellow', label = '-1')
 t = np.linspace(-0.1,0.35, 100)
 plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red')
 plt.legend();
-plt.title("Ejercicio2.2")
+plt.title("Ejercicio2.2 apartado c) Recta de regresión")
 
 plt.figure()
 plt.show()
@@ -451,7 +454,7 @@ w=np.ones(x.shape[1]) #Inicializo w a un vector de unos del tamaño de las colum
 w=w.reshape(-1,1) #Lo transformo en un vector columna
 w = pseudoinverse(X,y,w)
 print ('Bondad del resultado para pseudoinversa:\n')
-print('Uso eta=0.1, error=1e-14 , max_iteraciones=10000 y w inicializado a [1. 1. 1.]')
+print('Uso eta=0.1, error=1e-14 , max_iteraciones=200 y w inicializado a [1. 1. 1.]')
 print('w final: ', w)
 print ("Ein: ", Err(X,y,w))
 
@@ -465,7 +468,7 @@ plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'yellow', label = '-1')
 t = np.linspace(-0.1,0.35, 100)
 plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red')
 plt.legend();
-plt.title("Ejercicio2.2")
+plt.title("Ejercicio2.2 con la pseudoinversa")
 
 plt.figure()
 plt.show()
@@ -475,7 +478,6 @@ input("\n--- Pulsar tecla para continuar ---\n")
 
 ############################################# Apartado d) #########################################################################
 
-'''
 Ein=0
 E_out=0
 
@@ -484,7 +486,8 @@ for i in range(1000):
     X=simula_unif(1000,2,1)
     y=[]
     for i in X:
-        y.append(f1(i[0],i[1]))
+        y.append(f1(i[0],i[1]))   #para cada fila de X genero el valor de su etiqueta correspondiente en y usando la función del ejercicio
+
         
     X_=pd.DataFrame(data=X); #Convierto la matriz X en un Dataframe de Pandas, que es más cómodo de usar 
     X_=X_.sample(frac=0.10,random_state=1); #Hacemos que tome un 10% de los datos de forma aleatoria
@@ -520,13 +523,15 @@ print ('Tras mil iteraciones repitiendo el ejemplo anterior:\n')
 print ("Ein medio: ", Ein/1000.0)   
 print ("Eout medio: ", E_out/1000.0)   
 input("\n--- Pulsar tecla para continuar ---\n")
-'''
+
+#Ein medio:  0.9285675834614988
+#Eout medio:  1.009178730703268
 
 
-#################################################################################################
-#################################################################################################
-#################################################################################################
-#################### Mismo experimento con distinto vector de características####################
+###################################################################################################################################
+###################################################################################################################################
+###################################################################################################################################
+#################### Mismo experimento con distinto vector de características######################################################
 
 ############################################# Apartado a) #########################################################################
 np.random.seed(2)
@@ -537,6 +542,7 @@ X=simula_unif(1000,2,1)
 plt.scatter(X[:,0],X[:,1], c='blue')
 
 #Los muestro todos juntos
+plt.title('Ejercicio2.2 a) Puntos generados')
 plt.show();
 input("\n--- Pulsar tecla para continuar ---\n")
 
@@ -557,6 +563,7 @@ for i in X_.index:
 plt.scatter(X[:,0],X[:,1], c=y) #Uso el vector y como vector de colores
 
 #Muestro el gráfico
+plt.title('Ejercicio2.2 b) coloreo los puntos por etiquetas')
 plt.show()
 input("\n--- Pulsar tecla para continuar ---\n")
 
@@ -578,9 +585,12 @@ X=np.concatenate((unos,X,x1x2,x1_cuadrado,x2_cuadrado),axis=1) #Unimos por colum
 
 w = sgd(X,y,eta,num_iterations,error2get,32)
 print ('Bondad del resultado para grad. descendente estocastico:\n')
-print('Uso eta=0.1, error=1e-14 , max_iteraciones=10000 y w inicializado a [1. 1. 1.]')
+print('Uso eta=0.1, error=1e-14 , max_iteraciones=10000 y w inicializado a [1.  ... 1. 1.]')
 print('w final: ', w)
 print ("Ein: ", Err(X,y,w)) 
+#Ein:  0.5989154650667663
+
+############### Falta averiguar cómo representar la función en 2D####################################################################
 
 y0 = np.where(y == -1)
 y1 = np.where(y == 1)
@@ -591,7 +601,7 @@ plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'purple', label = '1')
 plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'yellow', label = '-1')
 t = np.linspace(-0.1,0.35, 100)
 plt.legend();
-plt.title("Ejercicio2.2")
+plt.title("Ejercicio2.2 apartado c) Recta de regresión")
 
 plt.figure()
 plt.show()
@@ -664,5 +674,7 @@ for i in range(1000):
 print ('Tras mil iteraciones repitiendo el ejemplo anterior:\n')
 print ("Ein medio: ", Ein/1000.0)   
 print ("Eout medio: ", E_out/1000.0)   
+#Ein medio:  0.581509158519527
+#Eout medio:  1.351906846737344
 input("\n--- Pulsar tecla para continuar ---\n")
 
