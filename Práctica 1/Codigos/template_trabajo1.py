@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
+from sklearn.utils import shuffle
 
 np.random.seed(1)
 
@@ -133,6 +134,7 @@ print('Funcion a minimizar: f(x,y)=(x+2)^2 + 2*(y-2)^2 + 2*sin(2*pi*x)*sin(2*pi*
 print('Gradiente: [4*pi*sin(2*pi*y)*cos(2*pi*x)+2*(x+2), 4*pi*sin(2*pi*x)*cos(2*pi*y)+4*(y-2)]')
 print ('Numero de iteraciones: ', it)
 print ('Coordenadas obtenidas con eta=0.01 : (', w[0], ', ', w[1],')')
+print ('valor obtenido: ', f(w[0],w[1]))
 ################## Representamos un un gráfico los datos ##############################
 imagenes=[]
 for i in vector_puntos:
@@ -142,7 +144,7 @@ iteraciones=np.arange(it+1) #HAcemos un array con las 50 iteraciones
 plt.plot(iteraciones, imagenes, label='Eta=0.01')
 plt.xlabel('Numero de Iteraciones')
 plt.ylabel('Valor de la función ')
-plt.title('Ejercicio 1.3')
+plt.title('Ejercicio 1.3 apartado a)')
 input("\n--- Pulsar tecla para continuar ---\n")
 
 eta = 0.1  #Cambiamos el valor de la tasa de aprendizaje
@@ -153,6 +155,7 @@ print('Funcion a minimizar: f(x,y)=(x+2)^2 + 2*(y-2)^2 + 2*sin(2*pi*x)*sin(2*pi*
 print('Gradiente: [4*pi*sin(2*pi*y)*cos(2*pi*x)+2*(x+2), 4*pi*sin(2*pi*x)*cos(2*pi*y)+4*(y-2)]')
 print ('Numero de iteraciones: ', it)
 print ('Coordenadas obtenidas con eta=0.1: (', w[0], ', ', w[1],')')
+print ('valor obtenido: ', f(w[0],w[1]))
 
 ################## Representamos un un gráfico los datos ##############################
 imagenes=[]
@@ -179,6 +182,14 @@ print ('Numero de iteraciones: ', it)
 print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
 print ('valor obtenido: ', f(w[0],w[1]))
 
+#Representamos en un gráfico
+imagenes=[]
+for i in vector_puntos:
+    imagenes.append(f(i[0],i[1]))
+
+iteraciones=np.arange(it+1)
+plt.plot(iteraciones, imagenes, label='Eta=0.01 (-0.5,-0.5)')
+
 print("\n--------------------------\n")
 x=1
 y=1
@@ -188,6 +199,14 @@ print('Puntos iniciales (x,y)= (',x, ',', y,')')
 print ('Numero de iteraciones: ', it)
 print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
 print ('valor obtenido: ', f(w[0],w[1]))
+
+#Representamos en un gráfico
+imagenes=[]
+for i in vector_puntos:
+    imagenes.append(f(i[0],i[1]))
+
+iteraciones=np.arange(it+1)
+plt.plot(iteraciones, imagenes, label='Eta=0.01 (1,1)')
 
 print("\n--------------------------\n")
 x=2.1
@@ -199,6 +218,14 @@ print ('Numero de iteraciones: ', it)
 print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
 print ('valor obtenido: ', f(w[0],w[1]))
 
+#Representamos en un gráfico
+imagenes=[]
+for i in vector_puntos:
+    imagenes.append(f(i[0],i[1]))
+
+iteraciones=np.arange(it+1)
+plt.plot(iteraciones, imagenes, label='Eta=0.01 (2.1,-2.1)')
+
 print("\n--------------------------\n")
 x=-3
 y=3
@@ -208,6 +235,13 @@ print('Puntos iniciales (x,y)= (',x, ',', y,')')
 print ('Numero de iteraciones: ', it)
 print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
 print ('valor obtenido: ', f(w[0],w[1]))
+#Representamos en un gráfico
+imagenes=[]
+for i in vector_puntos:
+    imagenes.append(f(i[0],i[1]))
+
+iteraciones=np.arange(it+1)
+plt.plot(iteraciones, imagenes, label='Eta=0.01 (-3,3)')
 
 print("\n--------------------------\n")
 x=-2
@@ -218,7 +252,34 @@ print('Puntos iniciales (x,y)= (',x, ',', y,')')
 print ('Numero de iteraciones: ', it)
 print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
 print ('valor obtenido: ', f(w[0],w[1]))
+#Representamos en un gráfico
+imagenes=[]
+for i in vector_puntos:
+    imagenes.append(f(i[0],i[1]))
 
+iteraciones=np.arange(it+1)
+plt.plot(iteraciones, imagenes, label='Eta=0.01 (-2,2)')
+plt.xlabel('Numero de Iteraciones')
+plt.ylabel('Valor de la función ')
+plt.title('Ejercicio 1.3 apartado b)')
+plt.legend()
+plt.show()
+
+# Dibujamos el gráfico en 3D
+x = np.linspace(-3, 3, 50)
+y = np.linspace(-3, 3, 50)
+X, Y = np.meshgrid(x, y)
+Z = f(X, Y) #E_w([X, Y])
+fig = plt.figure()
+ax = Axes3D(fig)
+surf = ax.plot_surface(X, Y, Z, edgecolor='none', rstride=1,
+                        cstride=1, cmap='jet')
+ax.set(title='Ejercicio 1.3. Función sobre la que se calcula el descenso de gradiente')
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_zlabel('f(x,y)')
+ax.view_init(0,60)
+plt.show()
 
 input("\n--- Pulsar tecla para continuar ---\n")
 
@@ -274,8 +335,9 @@ def sgd(x,y,eta,num_iterations,error,tam_Minibatch=1):
     Error=1000.0
     w=np.ones(x.shape[1]) #Inicializo w a un vector de unos del tamaño de las columnas de x
     w=w.reshape(-1,1) #Lo transformo en un vector columna
+    
+    xy=np.c_[x.copy(),y.copy()] #Esta función de numpy concatena dos matrices por columnas cuando el segundo parámetro es un vector columna
 
-    xy=np.c_[x,y] #Esta función de numpy concatena dos matrices por columnas cuando el segundo parámetro es un vector columna
     while Error>error and iterations<num_iterations:
         #La manera en que está implementado el algoritmo está inspirado en el algoritmo implementado en la siguiente dirección:
         #https://realpython.com/gradient-descent-algorithm-python
@@ -316,9 +378,35 @@ y=y.reshape(-1,1) #redimensionamos el vector para convertirlo en un vector colum
 y_test=y_test.reshape(-1,1) #redimensionamos el vector para convertirlo en un vector columna pongo -1 porque a priori no se cuantas filas saldrán
 num_iterations=200
 errorerror2get = 1e-14
-eta=0.1
 
-w = sgd(x,y,eta,num_iterations,error2get,32) #Como argumentos especificamos la matiz de características, el vector y de soluciones, el error y el tamaño de minibatch (en este caso 32)
+###################################################################################################################################################
+###################################################################################################################################################
+'''
+eta=np.linspace(0.01,0.5, 10) #Experimento para ver con que valor de eta se obtienen mejores resultados
+tam_Minibatch=np.arange(1,100) #Experimento para ver con que tamaño de minibatch se obtienen mejores resultados
+Error=1000.
+etamejor=0
+tam_mejor=0
+contador=0
+for i in tam_Minibatch:
+    print('Iteracion: ',contador)
+    for j in eta:
+        w=sgd(x,y,j,num_iterations,error2get,i)
+        if Err(x,y,w)<Error:
+            Error=Err(x,y,w)
+            etamejor=j
+            tam_mejor=i
+    contador+=1
+    
+#Con este experimento se obtiene que el mejor eta es 0.06444 y el mejor tamaño para el minibatch es de 34
+print ('El mejor eta es ', etamejor)
+print ('El mejor Tamaño de minibatch es ', tam_mejor)
+'''
+###################################################################################################################################################
+###################################################################################################################################################
+eta=0.1
+tam_Minibatch=32
+w = sgd(x,y,eta,num_iterations,error2get,tam_Minibatch)
 print ('Bondad del resultado para grad. descendente estocastico:\n')
 print('Uso eta=0.1, error=1e-14 , max_iteraciones=200 y w inicializado a un vector de unos')
 print('w final: ', w)
@@ -326,18 +414,19 @@ print ("Ein: ", Err(x,y,w))
 print ("Eout: ", Err(x_test, y_test, w)) #Comprobamos como de bueno es el ajuste con los datos del Test set
 
 ###### DIBUJO NUBE DE PUNTOS DE X ######## Este código está basado en el código de una compañera de prácticas, Celia Arias Martínez
-y0 = np.where(y == -1)
-y1 = np.where(y == 1)
-#Hacemos 3 arrays para separar los indices de las clases 0,1 y 2 
+y0 = np.where(y == -1) #capturo los índices de los elementos con -1
+y1 = np.where(y == 1) #capturo los índices de los elementos con 1
+#x_2 contiene dos arrays, uno en cada componente, el primero tiene los valores de x con etiqueta -1 y la segunda los de etiqueta 1
 x_2 = np.array([x[y0[0]],x[y1[0]]])
 
-plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'blue', label = '1')
-plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'orange', label = '5')
-t = np.linspace(0,1, 100)
-plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'blue', label = 'Numero 1') #Dibujamos los puntos con etiqueta 1
+plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'orange', label = 'Numero 5')#Dibujamos los de etiqueta -1
+t = np.linspace(0,1, 100) #Tomo 100 valores equiespaciados para evaluarlos en la función obtenida on sgd
+plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red', label='Recta de regresión') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
 plt.legend();
 plt.title("Ejercicio1")
-
+plt.xlabel('Intensidad')
+plt.ylabel('Simetría')
 plt.figure()
 plt.show()
 input("\n--- Pulsar tecla para continuar ---\n")
@@ -352,16 +441,16 @@ print ("Eout: ", Err(x_test, y_test, w))
 ###### DIBUJO NUBE DE PUNTOS DE X ######## Mismo procedimiento de antes
 y0 = np.where(y == -1)
 y1 = np.where(y == 1)
-#Hacemos 3 arrays para separar los indices de las clases 0,1 y 2
 x_2 = np.array([x[y0[0]],x[y1[0]]])
 
-plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'blue', label = '1')
-plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'orange', label = '5')
+plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'blue', label = 'Numero 1')
+plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'orange', label = 'Numero 5')
 t = np.linspace(0,1, 100)
-plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red')
+plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red', label='Recta de regresión')
 plt.legend();
 plt.title("Ejercicio1")
-
+plt.xlabel('Intensidad')
+plt.ylabel('Simetría')
 plt.figure()
 plt.show()
 input("\n--- Pulsar tecla para continuar ---\n")
@@ -384,7 +473,10 @@ def f1(x1, x2):
     x=(x1-0.2)**2 + x2**2 -0.6
     return sign(x)
 
-
+num_iterations=200
+errorerror2get = 1e-14
+eta=0.01 #Esta vez no hacemos el estudio del apartado anterior para elegir el mejor eta
+tam_Minibatch=32 #Esta vez no hacemos el estudio del apartado anterior para elegir el mejor tamaño de minibatch, pongo 32 porque suele dar buenos resultados
 ############################################# Apartado a) #########################################################################
 
 np.random.seed(2) #Establezco la semilla para que los procesos aleatorios sean reproducibles en cualquier máquina
@@ -392,7 +484,7 @@ np.random.seed(2) #Establezco la semilla para que los procesos aleatorios sean r
 X=simula_unif(1000,2,1) #Genero mil puntos en el cuadrado [-1,1]x[-1,1]
 
 # Dibujo el Scatter Plot de los puntos generados
-plt.scatter(X[:,0],X[:,1], c='blue')
+plt.scatter(X[:,0],X[:,1], c='purple')
 #Los muestro todos juntos
 plt.title('Ejercicio2.2 a) Puntos generados')
 plt.show();
@@ -429,21 +521,22 @@ y=y.reshape(-1,1) #convertimos y en un vector columna
 unos=np.ones((X.shape[0],1))
 X=np.concatenate((unos,X),axis=1)
 
-w = sgd(X,y,eta,num_iterations,error2get,32)
+w = sgd(X,y,eta,num_iterations,error2get,tam_Minibatch)
 print ('Bondad del resultado para grad. descendente estocastico:\n')
-print('Uso eta=0.1, error=1e-14 , max_iteraciones=200 y w inicializado a [1. 1. 1.]')
+print('Uso eta=0.1, error=1e-14 , max_iteraciones=200 y w inicializado a [1. ... 1. 1.]')
 print('w final: ', w)
 print ("Ein: ", Err(X,y,w))
 
+####################################################################################################################################
+#################Para la representación gráfica de este apartado usamos mismo método que el apartado 2.1
 y0 = np.where(y == -1)
 y1 = np.where(y == 1)
-#Hacemos 3 arrays para separar los indices de las clases 0,1 y 2
 x_2 = np.array([X[y0[0]],X[y1[0]]])
 
-plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'purple', label = '1')
-plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'yellow', label = '-1')
+plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'purple', label = 'Valores con etiqueta 1')
+plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'yellow', label = 'Valores con etiqueta -1')
 t = np.linspace(-0.1,0.35, 100)
-plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red')
+plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red', label='Recta de regresión obtenida')
 plt.legend();
 plt.title("Ejercicio2.2 apartado c) Recta de regresión")
 
@@ -454,7 +547,7 @@ w=np.ones(x.shape[1]) #Inicializo w a un vector de unos del tamaño de las colum
 w=w.reshape(-1,1) #Lo transformo en un vector columna
 w = pseudoinverse(X,y,w)
 print ('Bondad del resultado para pseudoinversa:\n')
-print('Uso eta=0.1, error=1e-14 , max_iteraciones=200 y w inicializado a [1. 1. 1.]')
+print('Uso eta=0.1, error=1e-14 , max_iteraciones=200 y w inicializado a [1. ... 1. 1.]')
 print('w final: ', w)
 print ("Ein: ", Err(X,y,w))
 
@@ -463,10 +556,10 @@ y1 = np.where(y == 1)
 #Hacemos 3 arrays para separar los indices de las clases 0,1 y 2
 x_2 = np.array([X[y0[0]],X[y1[0]]])
 
-plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'purple', label = '1')
-plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'yellow', label = '-1')
+plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'purple', label = 'Valores con etiqueta 1')
+plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'yellow', label = 'Valores con etiqueta -1')
 t = np.linspace(-0.1,0.35, 100)
-plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red')
+plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red', label='Recta de regresión obtenida')
 plt.legend();
 plt.title("Ejercicio2.2 con la pseudoinversa")
 
@@ -477,7 +570,7 @@ input("\n--- Pulsar tecla para continuar ---\n")
 
 
 ############################################# Apartado d) #########################################################################
-
+'''
 Ein=0
 E_out=0
 
@@ -499,7 +592,7 @@ for i in range(1000):
     y=y.reshape(-1,1) #convertimos y en un vector columna 
     unos=np.ones((X.shape[0],1))
     X=np.concatenate((unos,X),axis=1)
-    w = sgd(X,y,eta,num_iterations,error2get,32)
+    w = sgd(X,y,eta,num_iterations,error2get,tam_Minibatch)
     Ein+=Err(X,y,w)
    
     
@@ -524,10 +617,9 @@ print ("Ein medio: ", Ein/1000.0)
 print ("Eout medio: ", E_out/1000.0)   
 input("\n--- Pulsar tecla para continuar ---\n")
 
-#Ein medio:  0.9285675834614988
-#Eout medio:  1.009178730703268
-
-
+#Ein medio:  0.9258693113953839
+#Eout medio:   1.0025869854054248
+'''
 ###################################################################################################################################
 ###################################################################################################################################
 ###################################################################################################################################
@@ -539,7 +631,7 @@ np.random.seed(2)
 X=simula_unif(1000,2,1)
 
 # Dibujo el Scatter Plot
-plt.scatter(X[:,0],X[:,1], c='blue')
+plt.scatter(X[:,0],X[:,1], c='purple')
 
 #Los muestro todos juntos
 plt.title('Ejercicio2.2 a) Puntos generados')
@@ -583,23 +675,42 @@ x2_cuadrado=x2_cuadrado.reshape(-1,1)
 unos=np.ones((X.shape[0],1))
 X=np.concatenate((unos,X,x1x2,x1_cuadrado,x2_cuadrado),axis=1) #Unimos por columnas todo
 
-w = sgd(X,y,eta,num_iterations,error2get,32)
+w = sgd(X,y,eta,num_iterations,error2get,tam_Minibatch)
 print ('Bondad del resultado para grad. descendente estocastico:\n')
-print('Uso eta=0.1, error=1e-14 , max_iteraciones=10000 y w inicializado a [1.  ... 1. 1.]')
+print('Uso eta=0.1, error=1e-14 , max_iteraciones=200 y w inicializado a [1.  ... 1. 1.]')
 print('w final: ', w)
 print ("Ein: ", Err(X,y,w)) 
 #Ein:  0.5989154650667663
 
-############### Falta averiguar cómo representar la función en 2D####################################################################
-
+############### Representación gráfica####################################################################
+#Procedemos como en 2.1
 y0 = np.where(y == -1)
 y1 = np.where(y == 1)
-#Hacemos 3 arrays para separar los indices de las clases 0,1 y 2
 x_2 = np.array([X[y0[0]],X[y1[0]]])
 
-plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'purple', label = '1')
-plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'yellow', label = '-1')
-t = np.linspace(-0.1,0.35, 100)
+#Representamos la nube de puntos
+plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'purple', label = 'Valores con etiqueta 1')
+plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'yellow', label = 'Valores con etiqueta -1')
+
+
+def h(x,y,w):
+    return w[0] + w[1]*x + w[2]*y + w[3]*x*y + w[4]*x*x + w[5]*y*y
+
+#En este caso la función no es lineal, por lo que el método que usaremos será dibujar líneas de contorno
+#Como hemos obtenido una función de dos variables generamos 100 valores equiespaciados entre -1 y 1
+t1 = np.linspace(-1,1, 100)
+t2 = np.linspace(-1,1, 100)
+
+#CReamos una matriz de ceros de dimensión (len(t1), len(t2))
+z= np.zeros((len(t1), len(t2)))
+
+
+for i  in range(len(t1)):
+    for j in range(len(t2)):
+        z[i,j] = h(t1[i],t2[j],w) #Rellenamos la matriz con el valor de la función evaluada en el elemento i del vector t1 y j del vector t2
+        
+#Una vez hecho esto debemos pasar como parámetro la matriz z transpuesta        
+plt.contour(t1,t2, np.transpose(z),1, label='Función obtenida', linewidths=2) #Finalmente usando la función contour de pyplot dibujamos las líneas de contorno, y especifico que quiero que aparezca solo una
 plt.legend();
 plt.title("Ejercicio2.2 apartado c) Recta de regresión")
 
@@ -610,14 +721,36 @@ w=np.ones(x.shape[1]) #Inicializo w a un vector de unos del tamaño de las colum
 w=w.reshape(-1,1) #Lo transformo en un vector columna
 w = pseudoinverse(X,y,w)
 print ('Bondad del resultado para pseudoinversa:\n')
-print('Uso eta=0.1, error=1e-14 , max_iteraciones=10000 y w inicializado a [1. 1. 1.]')
+print('Uso eta=0.1, error=1e-14 , max_iteraciones=200 y w inicializado a [1. ... 1. 1.]')
 print('w final: ', w)
 print ("Ein: ", Err(X,y,w))
 input("\n--- Pulsar tecla para continuar ---\n")
 
+y0 = np.where(y == -1)
+y1 = np.where(y == 1)
+x_2 = np.array([X[y0[0]],X[y1[0]]])
+
+plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'purple', label = 'Valores con etiqueta 1')
+plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'yellow', label = 'Valores con etiqueta -1')
+#En este caso la función no es lineal, por lo que el método que usaremos será dibujar líneas de contorno
+t1 = np.linspace(-1,1, 100) 
+t2 = np.linspace(-1,1, 100)
+z= np.zeros((len(t1), len(t2))) 
+
+for i  in range(len(t1)):
+    for j in range(len(t2)):
+        z[i,j] = h(t1[i],t2[j],w)
+        
+#Una vez hecho esto debemos pasar como parámetro la matriz z transpuesta        
+plt.contour(t1,t2, np.transpose(z), 1, label='Función obtenida', linewidths=2)
+plt.legend();
+plt.title("Ejercicio2.2 apartado c) Recta de regresión")
+
+plt.figure()
+plt.show()
 ############################################# Apartado d) #########################################################################
 ##################################Experimento con 1000 iteraciones##################################
-
+'''
 Ein=0
 E_out=0
 
@@ -644,7 +777,7 @@ for i in range(1000):
     x2_cuadrado=x2_cuadrado.reshape(-1,1)
     unos=np.ones((X.shape[0],1))
     X=np.concatenate((unos,X,x1x2,x1_cuadrado,x2_cuadrado),axis=1) #Unimos por columnas todo
-    w = sgd(X,y,eta,num_iterations,error2get, 32)
+    w = sgd(X,y,eta,num_iterations,error2get, tam_Minibatch)
     Ein+=Err(X,y,w)
    
     
@@ -674,7 +807,7 @@ for i in range(1000):
 print ('Tras mil iteraciones repitiendo el ejemplo anterior:\n')
 print ("Ein medio: ", Ein/1000.0)   
 print ("Eout medio: ", E_out/1000.0)   
-#Ein medio:  0.581509158519527
-#Eout medio:  1.351906846737344
+#Ein medio:  0.5791197645316455
+#Eout medio:  1.348013602569363
 input("\n--- Pulsar tecla para continuar ---\n")
-
+'''
