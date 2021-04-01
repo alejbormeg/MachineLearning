@@ -570,7 +570,6 @@ input("\n--- Pulsar tecla para continuar ---\n")
 
 
 ############################################# Apartado d) #########################################################################
-'''
 Ein=0
 E_out=0
 
@@ -619,7 +618,6 @@ input("\n--- Pulsar tecla para continuar ---\n")
 
 #Ein medio:  0.9258693113953839
 #Eout medio:   1.0025869854054248
-'''
 ###################################################################################################################################
 ###################################################################################################################################
 ###################################################################################################################################
@@ -710,7 +708,7 @@ for i  in range(len(t1)):
         z[i,j] = h(t1[i],t2[j],w) #Rellenamos la matriz con el valor de la función evaluada en el elemento i del vector t1 y j del vector t2
         
 #Una vez hecho esto debemos pasar como parámetro la matriz z transpuesta        
-plt.contour(t1,t2, np.transpose(z),1, label='Función obtenida', linewidths=2) #Finalmente usando la función contour de pyplot dibujamos las líneas de contorno, y especifico que quiero que aparezca solo una
+plt.contour(t1,t2, np.transpose(z),0, label='Función obtenida', linewidths=2) #Finalmente usando la función contour de pyplot dibujamos las líneas de contorno, y especifico que quiero que aparezca solo una
 plt.legend();
 plt.title("Ejercicio2.2 apartado c) Recta de regresión")
 
@@ -742,7 +740,7 @@ for i  in range(len(t1)):
         z[i,j] = h(t1[i],t2[j],w)
         
 #Una vez hecho esto debemos pasar como parámetro la matriz z transpuesta        
-plt.contour(t1,t2, np.transpose(z), 1, label='Función obtenida', linewidths=2)
+plt.contour(t1,t2, np.transpose(z), 0, label='Función obtenida', linewidths=2)
 plt.legend();
 plt.title("Ejercicio2.2 apartado c) Recta de regresión")
 
@@ -750,7 +748,6 @@ plt.figure()
 plt.show()
 ############################################# Apartado d) #########################################################################
 ##################################Experimento con 1000 iteraciones##################################
-'''
 Ein=0
 E_out=0
 
@@ -810,4 +807,3 @@ print ("Eout medio: ", E_out/1000.0)
 #Ein medio:  0.5791197645316455
 #Eout medio:  1.348013602569363
 input("\n--- Pulsar tecla para continuar ---\n")
-'''
