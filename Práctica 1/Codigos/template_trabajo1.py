@@ -572,7 +572,7 @@ input("\n--- Pulsar tecla para continuar ---\n")
 ############################################# Apartado d) #########################################################################
 Ein=0
 E_out=0
-
+'''
 for i in range(1000):
     print ("iteracion: ", i)
     X=simula_unif(1000,2,1)
@@ -615,7 +615,7 @@ print ('Tras mil iteraciones repitiendo el ejemplo anterior:\n')
 print ("Ein medio: ", Ein/1000.0)   
 print ("Eout medio: ", E_out/1000.0)   
 input("\n--- Pulsar tecla para continuar ---\n")
-
+'''
 #Ein medio:  0.9258693113953839
 #Eout medio:   1.0025869854054248
 ###################################################################################################################################
@@ -780,6 +780,9 @@ for i in range(1000):
     
     ###########################PREPARAMOS EL TEST SET ###########################
     X=simula_unif(1000,2,1) #Generamos 1000 datos nuevos 
+    y=[]
+    for i in X:
+        y.append(f1(i[0],i[1])) #Generamos las etiquetas para los nuevos datos
     x1x2=X[:,0]*X[:,1] #multiplicación de las dos columnas elemento a elemento
     x1x2=x1x2.reshape(-1,1)
     x1_cuadrado=X[:,0]*X[:,0] 
@@ -787,9 +790,6 @@ for i in range(1000):
     x2_cuadrado=X[:,1]*X[:,1] 
     x2_cuadrado=x2_cuadrado.reshape(-1,1)
     X=np.concatenate((unos,X,x1x2,x1_cuadrado,x2_cuadrado),axis=1) #Unimos por columnas todo
-    y=[]
-    for i in X:
-        y.append(f1(i[0],i[1])) #Generamos las etiquetas para los nuevos datos
         
     X_=pd.DataFrame(data=X); #Convierto la matriz X en un Dataframe de Pandas, que es más cómodo de usar 
     X_=X_.sample(frac=0.10,random_state=1); #Hacemos que tome un 10% de los datos de forma aleatoria
