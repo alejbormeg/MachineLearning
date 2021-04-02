@@ -424,7 +424,7 @@ plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'orange', label = 'Numero 5')#Dibuj
 t = np.linspace(0,1, 100) #Tomo 100 valores equiespaciados para evaluarlos en la función obtenida on sgd
 plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red', label='Recta de regresión') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
 plt.legend();
-plt.title("Ejercicio1")
+plt.title("Ejercicio1 SGD")
 plt.xlabel('Intensidad')
 plt.ylabel('Simetría')
 plt.figure()
@@ -448,7 +448,7 @@ plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'orange', label = 'Numero 5')
 t = np.linspace(0,1, 100)
 plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red', label='Recta de regresión')
 plt.legend();
-plt.title("Ejercicio1")
+plt.title("Ejercicio1 Pseudoinversa")
 plt.xlabel('Intensidad')
 plt.ylabel('Simetría')
 plt.figure()
@@ -505,7 +505,6 @@ for i in X_.index:
 
 
 plt.scatter(X[:,0],X[:,1], c=y) #Uso el vector y como vector de colores
-
 #Muestro el gráfico
 plt.title('Ejercicio2.2 b) coloreo los puntos por etiquetas')
 
@@ -572,7 +571,7 @@ input("\n--- Pulsar tecla para continuar ---\n")
 ############################################# Apartado d) #########################################################################
 Ein=0
 E_out=0
-'''
+
 for i in range(1000):
     print ("iteracion: ", i)
     X=simula_unif(1000,2,1)
@@ -615,7 +614,7 @@ print ('Tras mil iteraciones repitiendo el ejemplo anterior:\n')
 print ("Ein medio: ", Ein/1000.0)   
 print ("Eout medio: ", E_out/1000.0)   
 input("\n--- Pulsar tecla para continuar ---\n")
-'''
+
 #Ein medio:  0.9258693113953839
 #Eout medio:   1.0025869854054248
 ###################################################################################################################################
@@ -710,7 +709,7 @@ for i  in range(len(t1)):
 #Una vez hecho esto debemos pasar como parámetro la matriz z transpuesta        
 plt.contour(t1,t2, np.transpose(z),0, label='Función obtenida', linewidths=2) #Finalmente usando la función contour de pyplot dibujamos las líneas de contorno, y especifico que quiero que aparezca solo una
 plt.legend();
-plt.title("Ejercicio2.2 apartado c) Recta de regresión")
+plt.title("Ejercicio2.2 apartado c) SGD")
 
 plt.figure()
 plt.show()
@@ -723,26 +722,36 @@ print('Uso eta=0.1, error=1e-14 , max_iteraciones=200 y w inicializado a [1. ...
 print('w final: ', w)
 print ("Ein: ", Err(X,y,w))
 input("\n--- Pulsar tecla para continuar ---\n")
-
+#Procedemos como en 2.1
 y0 = np.where(y == -1)
 y1 = np.where(y == 1)
 x_2 = np.array([X[y0[0]],X[y1[0]]])
 
+#Representamos la nube de puntos
 plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'purple', label = 'Valores con etiqueta 1')
 plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'yellow', label = 'Valores con etiqueta -1')
+
+
+def h(x,y,w):
+    return w[0] + w[1]*x + w[2]*y + w[3]*x*y + w[4]*x*x + w[5]*y*y
+
 #En este caso la función no es lineal, por lo que el método que usaremos será dibujar líneas de contorno
-t1 = np.linspace(-1,1, 100) 
+#Como hemos obtenido una función de dos variables generamos 100 valores equiespaciados entre -1 y 1
+t1 = np.linspace(-1,1, 100)
 t2 = np.linspace(-1,1, 100)
-z= np.zeros((len(t1), len(t2))) 
+
+#CReamos una matriz de ceros de dimensión (len(t1), len(t2))
+z= np.zeros((len(t1), len(t2)))
+
 
 for i  in range(len(t1)):
     for j in range(len(t2)):
-        z[i,j] = h(t1[i],t2[j],w)
+        z[i,j] = h(t1[i],t2[j],w) #Rellenamos la matriz con el valor de la función evaluada en el elemento i del vector t1 y j del vector t2
         
 #Una vez hecho esto debemos pasar como parámetro la matriz z transpuesta        
-plt.contour(t1,t2, np.transpose(z), 0, label='Función obtenida', linewidths=2)
+plt.contour(t1,t2, np.transpose(z),0, label='Función obtenida', linewidths=2) #Finalmente usando la función contour de pyplot dibujamos las líneas de contorno, y especifico que quiero que aparezca solo una
 plt.legend();
-plt.title("Ejercicio2.2 apartado c) Recta de regresión")
+plt.title("Ejercicio2.2 apartado c) Pseudoinversa")
 
 plt.figure()
 plt.show()
@@ -805,5 +814,5 @@ print ('Tras mil iteraciones repitiendo el ejemplo anterior:\n')
 print ("Ein medio: ", Ein/1000.0)   
 print ("Eout medio: ", E_out/1000.0)   
 #Ein medio:  0.5791197645316455
-#Eout medio:  1.348013602569363
+#Eout medio:  0.5867079177511026
 input("\n--- Pulsar tecla para continuar ---\n")

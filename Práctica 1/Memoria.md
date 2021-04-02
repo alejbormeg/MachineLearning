@@ -292,3 +292,380 @@ Este ejercicio ajusta modelos de regresión a vectores de características extra
 ### Ejercicio 2.1
 ### Estimar un modelo de regresión lineal a partir de los datos proporcionados por los vectores de características (Intensidad promedio, Simetría) usando tanto el algoritmo de la pseudo-inversa como el Gradiente Descendente Estocático (SGD). Las etiquetasa serán (-1,1), una por cada vector de cada uno de los números. Pintar las soluciones obtenidas junto con los datos usados en el ajuste. Valorar predicciones usando Ein y Eout (para E out calcular las predicciones usando los datos del fichero de test)
 
+
+En primer lugar, vamos a implementar el algoritmo de la pseudoinversa, dicho algoritmo es el siguiente: 
+
+![Pseudoinversa](Pseudoinversa.png)
+---------------------------------------------------------
+
+
+Que surge de la problemática de que no se conoce a priori que la matriz X sea invertible, por lo que para despejar el vector de pesos w de la ecuación se recurre a la pseudoinversa.
+
+
+~~~
+# Pseudoinversa	
+def pseudoinverse(x,y,w):
+
+    pseudoinverse=np.linalg.pinv(np.transpose(x).dot(x))
+    X=pseudoinverse.dot(np.transpose(x));
+    w=X.dot(y);
+    return w
+~~~
+
+Por ello en primer lugar calculamos el producto de X transpuesto por X y a dicho producto le calculamos la pseudoinversa con la función np.linalg.pinv() (que calcula la pseudoinversa con la descomposición en valores singulares vista en clase) y el resultado lo almacenamos en una variable llamada pseudoinverse. Después calculamos el producto matricial de pseudoinverse con X transpuesta y ya tendríamos la X con la cruz (pseudoinversa de X) y por tanto solo faltaría multiplicar esa matriz por las etiquetas y y obtendríamos de forma directa los pesos del vector w.
+
+En segundo lugar implementamos el Gradiente Descendente Estocástico (SGD), el cual es el siguiente: 
+
+![SGD 1](SGD1.png)
+![SGD 2](SGD2.png)
+----------------------------------------------------------------
+El cual a diferencia del Gradiente Descendente del ejercicio 1 se caracteriza por que en cada iteración del bucle principal, se mezclan los datos de la matriz X y el vector de los pesos no se actualiza teniendo en cuenta todas y cada una de las filas de la matriz X de características, sino que dividimos dicha matriz en Mini Batches (pequeños subgrupos) e iterando sobre dichos subgrupos vamos actualizando el vector de pesos w tomando en consideración únicamente las filas de cada Mini Batch. Y dado que estamos empleando dicho algoritmo para una función lineal, tenemos una expresión para las derivadas parciales (Foto SGD 2) que como podemos ver toma únicamente los M valores del Mini Batch (con M < N siendo N el número de filas de la matriz X). 
+
+Las ventaja de este algoritmo con respecto al Gradiente Descendente básico es principalmente la ganancia de tiempo en ejecución, pues este algoritmo suele ser más rápido para conjuntos de datos muy grandes.
+
+Dicho esto, el código sería el siguiente:
+
+~~~
+# Gradiente Descendente Estocastico
+def sgd(x,y,eta,num_iterations,error,tam_Minibatch=1):
+    N=len(y) #Numero de filas de X e y
+    iterations=0
+    Error=1000.0
+    w=np.ones(x.shape[1]) 
+    w=w.reshape(-1,1) #Lo transformo en un vector columna
+    
+    xy=np.c_[x.copy(),y.copy()] 
+
+    while Error>error and iterations<num_iterations:
+        #https://realpython.com/gradient-descent-algorithm-python
+            
+        np.random.shuffle(xy) #Mezclo los datos 
+
+        for i in range(0,N,tam_Minibatch): 
+            parada= i + tam_Minibatch
+            x_mini,y_mini=xy[i:parada, :-1], xy[i:parada,-1:]
+            h_x= np.dot(x_mini,w)
+            partial_derivative = (2/tam_Minibatch)*np.dot(np.transpose(h_x - y_mini),x_mini) 
+            w=w - eta*np.transpose(partial_derivative)
+            
+        iterations=iterations + 1 
+        Error= Err(x,y,w)
+        
+    return w
+~~~
+
+La función necesita como parámetros la matriz X de características, el vector y de etiquetas, el eta o tasa de aprendizaje, el error a alcanzar y el tamaño del minibatch (si no se especifica este último parámetro se usa un tamaño 1).
+
+Dicho esto, en primer lugar capturamos el número de filas de la matriz X, inicializamos las iteraciones a 0, el Error a 1000 y creamos el vector de pesos inicializado a unos, de longitud tanta como columnas tenga la matriz X, después a la matriz X le concatenamos al final el vector y de etiquetas. La razón por la que hacemos esto último es porque vamos a mezclar las filas de dicha matriz xy para luego dividirlas según los minibatches y no queremos que al mezclar la matriz X perdamos su correspondiente etiqueta en y.
+
+En segundo lugar comienza el bucle principal, cuyas condiciones de parada son las mismas que en el Gradiente Descendente básico. En cada iteración de este bucle empezamos mezclando aleatoriamente las filas de la matriz xy y después iteramos por los minibathces (de tamaño especificado en la variable tam_minibatch). Para ello defino un bucle for anidado en el while que va desde 0 a N(número de filas de la matriz X) y va saltando según el tamaño de Minibatch (de 10 en 10, de 30 en 30, según se especifique en Tam_Minibatch). 
+
+En el bucle for lo que hacemos es tomar las correspondientes filas de la matriz xy según el tamaño del minibatch y definimos las variables x_mini e y_mini, que contienen el sobconjunto de datos correspondiente al minibatch, y con dichos datos aplicamos el algoritmo de gradiente descendente explicado en el ejercicio 1 y actualizamos el vector de pesos.
+
+Al salir del for aumentamos las iteraciones en 1 y calculamos el error.
+
+Por último, el error tanto para SGD como para la pseudoinversa una vez se tiene el vector de pesos es el error cuadrático medio, implementado en la siguiente función:
+
+~~~
+# Funcion para calcular el error
+def Err(x,y,w): #Los parámetros son la matriz x de características,  
+                #el vector y de etiquetas y el vector w de pesos
+    N=len(y) #Calculo el número de filas de y
+    producto=x.dot(w)
+    Err=(1/N)*(np.transpose(producto-y).dot(producto-y))
+    return Err.item()
+~~~
+
+La cual en producto nos calcula para cada fila de X su correspondiente imagen con los pesos obtenidos, y después le restamos el vector y de etiquetas reales. Finalmente multiplicamos el vector resultante por su transpuesto obteniendo la sumatoria de las diferencias al cuadrado y por último se hace la media dividiendo por N.
+
+Una vez hecho esto, leemos los datos del fichero correspondiente usando las funciones que nos venían implementadas en el template y separamos los datos en x, y, x_test e y_test. 
+
+Como comentario, decir que en el fichero del código hay una región comentada en la cual hice un experimento para saber con que valor de eta y para que tamaño de minibatch el ajuste era mejor. Para ello generé 10 valores de eta equiespaciados entre 0.01 y 0.5 y para cada valor de eta probé con tamaños de minibatch desde 1 a 100, obteniendo el mejor resultado para eta=0.6444 y tamaño de minibatch 34.
+
+No obstante, el código es my costoso computacionalmente, y en la práctica utilizo un eta=0.1 y un tamaño de minibatch de 32, pues suele ser un valor muy utilizado y que da buenos resultados. Finalmente realizo 200 iteraciones, pues con más iteraciones el error mejoraba muy poco, y era más costoso computacionalmente.
+Finalmente comentar que el Ein se calcula empleando las etiquetas y características del training set y el Eout con las del test set.
+
+Dicho esto, los resultados obtenidos con el SGD fueron: 
+
+~~~
+Bondad del resultado para grad. descendente estocastico:
+
+Uso eta=0.1, error=1e-14 , max_iteraciones=200 y w inicializado a un vector de unos
+w final:  [[-1.11497483]
+ [-1.22504639]
+ [-0.51067538]]
+Ein:  0.08114200106209532
+Eout:  0.1368935739925718
+~~~
+
+
+![SGD 2.1](Ejercicio2.1.png)
+---------------------------------------------------------
+
+Los resultados obtenidos para la Pseudoinversa fueron:
+
+~~~
+Bondad del resultado para algoritmo de la pseudoinversa:
+
+w final:  [[-1.11588016]
+ [-1.24859546]
+ [-0.49753165]]
+Ein:  0.07918658628900395
+Eout:  0.13095383720052559
+~~~
+
+
+![Pseudoinversa 2.1](Ejercicio2.2PSeudo.png)
+---------------------------------------------------------
+
+
+Como podemos ver los resultados son muy similares para los dos algoritmos y la recta de regresión separa bastante bien los datos del training set cometiendo un error muy bajo. No obstante, a pesar de que el ajuste empeora en el test set, el error cometido sigue siendo bajo, y se podría decir que separa adecuadamente las fotografías de números 1 y 5.
+
+Por último, para el código que he empleado para representar las gráficas me ha ayudado una compañera de clase, Celia Arias Martínez. En primer lugar capturo las filas de X con etiqueta -1 y luego las que tienen etiqueta 1, y las represento en un scatter plot, después de la fórmula $h(x)=w_0 + w_1*x_1 + w_2*x_2$ despejo una de las dos incógnitas (en mi caso x2) y expreso la función de la siguiente forma $x_2=\frac {w_0+w_1*x_1}{w_2}$ y simplemente tomo 100 valores equiespaciados entre 0 y 1 y los evalúo en dicha función y con plt.plot() la dibujo en el gráfico, pasando como parámetros los puntos donde evalúo la función, la función dónde se evalúan, el color de la recta (rojo en mi caso) y la etiqueta. Finalmente le pongo un título al gráfico con plt.Title, le pongo nombre a los ejes con plt.xlabel y plt.ylabel, con plt.legend() creo la leyenda y muestro el gráfico con plt.show().
+
+El código con el que se han generado es el siguiente:
+
+~~~
+y0 = np.where(y == -1) #capturo los índices de los elementos con -1
+y1 = np.where(y == 1) #capturo los índices de los elementos con 1
+#x_2 contiene dos arrays, uno en cada componente, el primero tiene los
+#valores de x con etiqueta -1 y la segunda los de etiqueta 1
+x_2 = np.array([x[y0[0]],x[y1[0]]])
+
+#Dibujamos los puntos con etiqueta 1
+plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'blue', label = 'Numero 1') 
+#Dibujamos los de etiqueta -1
+plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'orange', label = 'Numero 5')
+#Tomo 100 valores equiespaciados para evaluarlos en la función obtenida en sgd
+t = np.linspace(0,1, 100) 
+#Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red', label='Recta de regresión') 
+plt.legend();
+plt.title("Ejercicio1 SGD")
+plt.xlabel('Intensidad')
+plt.ylabel('Simetría')
+plt.figure()
+plt.show()
+~~~
+
+### Ejercicio 2.2
+### En este apartado exploramos como se transforman los errores Ein y Eout cuando aumentamos la complejidad del modelo lineal usado. Ahora hacemos uso de la función simula_unif(N,2,size) que nos devuelve N coordenadas 2D de puntos uniformemente muestreados dentro del cuadrado definido por [-size,size]x[-size,size]
+### Experimento 
+### a) Generar una muestra de entrenamiento de N=1000 puntos en el cuadrado X=[-1,1]x[-1,1]. Pintar el mapa de puntos 2D. (ver función de ayuda)
+
+En primer lugar establezco una semilla para los procesos aleatroios que sucedan en este apartado y los siguientes, y después con la función simula_unif() genero los puntos y hago un scatter plot obteniendo estos resultados: 
+
+~~~
+#Establezco la semilla para que los procesos aleatorios sean reproducibles en cualquier máquina
+np.random.seed(2) 
+#Genero mil puntos en el cuadrado [-1,1]x[-1,1]
+X=simula_unif(1000,2,1)
+
+# Dibujo el Scatter Plot de los puntos generados
+plt.scatter(X[:,0],X[:,1], c='purple')
+#Los muestro todos juntos
+plt.title('Ejercicio2.2 a) Puntos generados')
+plt.show();
+~~~
+
+![Puntos Generados](Ejercicio2.2a.png)
+
+
+---------------------------------------------------------
+
+### b) Consideramos la función $f(x_1, x_2)=sign((x_1-0.2)^2+ x_2^2-0.6)$ que usaremos para asignar una etiqueta a cada punto de la muestra anterior. Introducimos ruido sobre las etiquetas cambiando aleatoriamente el signo de un 10% de las mismas. Pintar el mapa de etiquetas obtenido.
+
+En primer lugar definimos la función que usaremos para asignar las etiquetas: 
+
+~~~
+def sign(x):
+	if x >= 0:
+		return 1
+	return -1
+
+def f1(x1, x2):
+    x=(x1-0.2)**2 + x2**2 -0.6
+    return sign(x)
+~~~
+
+En segundo lugar, genero el vector de etiquetas, para ello itero sobre las filas de X y evalúo cada fila en la función definida anteriormente. Para añadir ruido, convierto los datos en un DataFrame de Pandas que tiene funciones útiles para esto y usando la función sample, tomo una muestra aleatoria de un 10% de los datos y multiplico las etiquetas de dichos datos por -1 para cambiar su signo.
+
+~~~
+y=[] #Vector de etiquetas
+for i in X:
+    y.append(f1(i[0],i[1])) #para cada fila de X genero el valor de su
+    #etiqueta correspondiente en y usando la función del ejercicio
+
+X_=pd.DataFrame(data=X); #Convierto la matriz X en un Dataframe de
+#Pandas, que es más cómodo de usar 
+X_=X_.sample(frac=0.10,random_state=1); #Hacemos que tome un 10% de
+#los datos de forma aleatoria para generar ruido en la muestra
+
+for i in X_.index:
+    y[i]=y[i]*-1 #Cambio el signo de esos elementos
+
+~~~
+
+Finalmente realizo un scatterplot, coloreando los puntos según su etiqueta, usando como vector de colores el vector de etiquetas y, las moradas tiene y=1 y las amarillas y=-1:
+
+![Morados (y=1) Amarillos(y=-1)](Ejercicio2.2b.png)
+---------------------------------------------------------
+
+### c) Usando como vector de características $(1,x_1,x_2)$ ajustar un modelo de regresión lineal al conjunto de datos generado y estimar los pesos w. Estimar el error de ajuste Ein usando Gradiente Descendente Estocástico (SGD).
+
+En primer lugar convertimos el vector y en un np.array() y lo transformamos en un vector columna. Después creamos un vector de unos que añadimos a la matriz x de características como primera columna.
+Una vez hecho esto aplicamos el algoritmo del SGD del ejercicio anterior y obtenemos los siguientes resultados:
+
+~~~
+Bondad del resultado para grad. descendente estocastico:
+
+Uso eta=0.1, error=1e-14 , max_iteraciones=200 y w inicializado a [1. ... 1. 1.]
+w final:  [[ 0.06313292]
+ [-0.44071531]
+ [-0.09348305]]
+Ein:  0.9278055026514189
+~~~
+Y representando los datos gráficamente de la misma forma que en elercicio 2.1. 
+
+![SGD](Ejercicio2.2cSGD.png)
+---------------------------------------------------------
+
+Finalmente para validar los resultados aplico el algoritmo de la pseudoinversa, y vemos que obtenemos unos resultados muy similares:
+
+~~~
+Bondad del resultado para pseudoinversa:
+
+Uso eta=0.1, error=1e-14 , max_iteraciones=200 y w inicializado a [1. ... 1. 1.]
+w final:  [[ 0.06454124]
+ [-0.43939414]
+ [-0.09368047]]
+Ein:  0.9278030562928541
+~~~
+
+![Pseudoinversa](Ejercicio2.2cPseudo.png)
+---------------------------------------------------------
+
+### d) Ejecutar todo el experimento definido por a)-c) 1000 veces (generamos 1000 muestras diferentes) y Calcular el valor medio de los errores Ein de las 1000 muestras y generar 1000 puntos nuevos por cada iteración y calcular con ellos el valor de Eout en dicha iteración.Calcular el valor medio de Eout en todas las iteraciones.
+
+Realizando el mismo experimento 1000 veces se obtienen los siguientes resultados: 
+
+~~~
+Tras mil iteraciones repitiendo el ejemplo anterior:
+
+Ein medio:  0.9258693113953839
+Eout medio:  1.0025869854054248
+~~~
+
+El código básicamente es un bucle for realizando 1000 veces los pasos de a)-c) y creando test set para cada iteración.
+
+### e) Valore que tan bueno considera que es el ajuste con este modelo lineal a la vista de los valores medios de Ein y Eout.
+
+A la vista de los resultados obtenidos, el modelo no se ajusta bien a los datos obteniendo errores altos en el Training set y en el test set. Y es por eso que consiedero que se deberían añadir características no lineales para tratar de aproximar mejor los datos.
+
+### Repetir el mismo experimento anterior pero usando características no lineales. Ahora usaremos el siguiente vector de características: $\Phi_2(x)=(1,x_1,x_2,x_1x_2,x_1^2,x_2^2)$. Ajustar el nuevo modelo de regresión lineal y calcular el nuevo vector de pesos w. Calcular los errores promedio de Ein y Eout.
+
+Para construir la nueva matriz de características empleo el siguiente código: 
+
+~~~
+x1x2=X[:,0]*X[:,1] #multiplicación de las dos columnas elemento a 
+#elemento
+x1x2=x1x2.reshape(-1,1)
+x1_cuadrado=X[:,0]*X[:,0] 
+x1_cuadrado=x1_cuadrado.reshape(-1,1)
+x2_cuadrado=X[:,1]*X[:,1] 
+x2_cuadrado=x2_cuadrado.reshape(-1,1)
+unos=np.ones((X.shape[0],1))
+X=np.concatenate((unos,X,x1x2,x1_cuadrado,x2_cuadrado),axis=1) #Unimos 
+#por columnas todo
+~~~
+
+Donde x1x2 es la columna que contiene el producto de la columna x1 por la columna x2 elemento a elemento de la matriz X original, x1_cuadrado y x2_cuadrado contienen vectores que surgen de multiplicar elemento a elemento la columna x1 por si misma y x2 por si misma respectivamente. Finalmente se concatenan a la matriz x junto con el vector de unos.
+
+Por otro lado y como comentario, esta vez el código empleado hasta ahora no nos sirve (solo mantenemos el código para representar la nube de puntos), pues no es una función lineal. por lo que se procede de manera distinta:
+
+~~~
+def h(x,y,w):
+    return w[0] + w[1]*x + w[2]*y + w[3]*x*y + w[4]*x*x + w[5]*y*y
+
+#En este caso la función no es lineal, por lo que el método que 
+#usaremos será dibujar líneas de contorno
+#Como hemos obtenido una función de dos variables generamos 100 
+#valores equiespaciados entre -1 y 1
+t1 = np.linspace(-1,1, 100)
+t2 = np.linspace(-1,1, 100)
+
+#Creamos una matriz de ceros de dimensión (len(t1), len(t2))
+z= np.zeros((len(t1), len(t2)))
+
+
+for i  in range(len(t1)):
+    for j in range(len(t2)):
+        z[i,j] = h(t1[i],t2[j],w) #Rellenamos la matriz con el valor 
+        #de la función evaluada en el elemento i del vector t1 y j del 
+        #vector t2
+        
+#Una vez hecho esto debemos pasar como parámetro la matriz z 
+#transpuesta        
+plt.contour(t1,t2, np.transpose(z),0, label='Función obtenida', linewidths=2) #Finalmente usando la función contour de pyplot 
+#dibujamos las líneas de contorno, y especifico que quiero que 
+#aparezca solo una poniendo un 0
+plt.legend();
+plt.title("Ejercicio2.2 apartado c) Recta de regresión")
+
+plt.figure()
+plt.show()
+~~~
+
+Una vez hecho esto aplicamos el algoritmo SGD de los ejercicios anteriores y obtenemos los siguientes resultados: 
+
+~~~
+Bondad del resultado para grad. descendente estocastico:
+
+Uso eta=0.1, error=1e-14 , max_iteraciones=200 y w inicializado a [1.  ... 1. 1.]
+w final:  [[-0.84030977]
+ [-0.48447789]
+ [-0.09196006]
+ [-0.17887593]
+ [ 1.17702153]
+ [ 1.51354734]]
+Ein:  0.5989218142993927
+~~~
+
+Y si lo representamos gráficamente obtenemos:
+
+![SGD](nolinealSGD.png)
+---------------------------------------------------------
+
+
+Nuevamente, para validar los resultados realizo el mismo experimento con la pseudoinversa obteniendo:
+
+~~~
+Bondad del resultado para pseudoinversa:
+
+Uso eta=0.1, error=1e-14 , max_iteraciones=200 y w inicializado a [1. ... 1. 1.]
+w final:  [[-0.84240634]
+ [-0.48348941]
+ [-0.09179431]
+ [-0.17884745]
+ [ 1.17660546]
+ [ 1.51303266]]
+Ein:  0.5989154650667663
+~~~
+
+![Pseudoinversa](nolinealPSeudoinversa.png)
+---------------------------------------------------------
+
+Y nuevamente vemos que los resultados son prácticamente idénticos.
+
+Finalmente si realizamos el experimento de las mil iteraciones obtendremos los siguientes resultados:
+
+~~~
+Tras mil iteraciones repitiendo el ejemplo anterior:
+
+Ein medio:  0.5791197645316455
+Eout medio:  0.5867079177511026
+~~~
+
+### A la vista de los resultados de los errores promedios Ein y Eout obtenidos en los dos experimentos ¿Qué modelo considera que es el más adecuado? Justifique la decisión. 
+
+Dados los resultados obtenidos considero que el modelo que mejor se ajusta a este problema es el segundo, con vector de características no lineales, pues con dicho modelo se obtiene un ajuste que tiene menor Error en el training set (0.9258693113953839 frente a  0.5791197645316455) y no ocurre overfitting, es decir, a pesar de que el modelo se ajusta muy bien en el training set, en el test set consigue mantener un error prácticamente idéntico y en ambos casos es un error aceptable. Por otra parte, el vector de características original y el modelo de regresión lineal, además de conseguir un error mayor en el training set, en el test set se empeora también considerablemente hasta llegar a un error medio de  1.0025869854054248, en este caso tenemos un ejemplo de leve "underfitting", pues el modelo no es capaz de captar las variaciones de los datos correctamente, por ello cosidero que es más adecuado el segundo modelo.
