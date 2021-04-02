@@ -1,7 +1,10 @@
-Alejandro Borrego Megías DGIIM 
-
-# Práctica 1 Aprendizaje Automático 
-
+---
+title: Aprendizaje Automático
+subtitle: Práctica 1
+author: Alejandro Borrego Megías
+date: 02/04/2021
+documentclass: report
+---
 ## Ejercicio 1 
 ### Búsqueda Iterativa de óptimos
 
@@ -325,6 +328,7 @@ En segundo lugar implementamos el Gradiente Descendente Estocástico (SGD), el c
 ![SGD 1](SGD1.png)
 ![SGD 2](SGD2.png)
 ----------------------------------------------------------------
+
 El cual, a diferencia del Gradiente Descendente del ejercicio 1, se caracteriza por que en cada iteración del bucle principal, se mezclan los datos de la matriz X y el vector de los pesos no se actualiza teniendo en cuenta todas y cada una de las filas de la matriz X de características, sino que dividimos dicha matriz en Mini Batches (pequeños subgrupos) e iterando sobre dichos subgrupos vamos actualizando el vector de pesos w tomando en consideración únicamente las filas de cada Mini Batch. Y dado que estamos empleando dicho algoritmo para una función lineal, tenemos una expresión para las derivadas parciales (Foto SGD 2) que como podemos ver toma únicamente los M valores del Mini Batch (con M < N siendo N el número de filas de la matriz X). 
 
 Las ventaja de este algoritmo con respecto al Gradiente Descendente básico es principalmente la ganancia de tiempo en ejecución, pues este algoritmo suele ser más rápido para conjuntos de datos muy grandes.
