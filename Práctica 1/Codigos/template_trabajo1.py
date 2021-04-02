@@ -362,8 +362,8 @@ def sgd(x,y,eta,num_iterations,error,tam_Minibatch=1):
 def pseudoinverse(x,y,w):
 
     pseudoinverse=np.linalg.pinv(np.transpose(x).dot(x))
-    X=pseudoinverse.dot(np.transpose(x));
-    w=X.dot(y);
+    X=pseudoinverse.dot(np.transpose(x))
+    w=X.dot(y)
     return w
 
 #####################################################################################################################################

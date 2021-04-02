@@ -9,7 +9,7 @@ Alejandro Borrego Megías DGIIM
 
 El algoritmo implementado es el siguiente, que puede verse en el fichero template_trabajo1.py 
 
-~~~
+~~~python
 def gradient_descent(w,eta,num_iterations, error): 
     #
     # gradiente descendente
@@ -26,6 +26,9 @@ def gradient_descent(w,eta,num_iterations, error):
     return w, iterations  
 
 ~~~
+
+Antes de entrar en detalle, comentar que en toda la práctica he procurado utilizar operaciones vectoriales y matriciales en la medida de lo posible en lugar de bucles para mejorar la eficiencia de los algoritmos implementados. Dicho esto continuamos con la explicación.
+
 Este algoritmo está hecho específicamente para la función E(u,v) del apartado siguiente pero se puede generalizar fácilmente para cualquier otra función. Los valores que se pasan como argumento son w (vector que contendrá las coordenadas del mínimo de la función, inicializado a [1 1 ... 1]), eta (la tasa de aprendizaje), num_iterations (contiene las iteraciones máximas que hará el algoritmo) y error (contiene el error a alcanzar).
 
 La idea del algoritmo es, en primer lugar inicializamos las iteraciones a 0 y establecemos un error base de 1000 para ir mejorándolo en el bucle while. 
@@ -45,14 +48,14 @@ Como podemos ver, el correcto funcionamiento del algoritmo depende entre otras c
 
 1. La función E(u,v)=$\left(\mathrm{e}^{v-2}u^3-2v^2\mathrm{e}^{-u}\right)^2$
    
-~~~
+~~~python
 def E(u,v):
     return  (u**3*np.e**(v-2)-2*v**2*np.e**(-u))**2
 ~~~
 
 2. Las derivadas parciales con respecto a u y v, que serían $\frac {\partial} {\partial u} E(u,v)= 2\left(\mathrm{e}^{v-2}u^3-2v^2\mathrm{e}^{-u}\right)\left(2v^2\mathrm{e}^{-u}+3\mathrm{e}^{v-2}u^2\right)$ y $\frac {\partial} {\partial v} E(u,v)=2\left(u^3\mathrm{e}^{v-2}-4\mathrm{e}^{-u}v\right)\left(u^3\mathrm{e}^{v-2}-2\mathrm{e}^{-u}v^2\right)$ 
 
-~~~
+~~~python
 #Derivada parcial de E con respecto a u
 def dEu(u,v):
     return 2*(np.e**(v-2)*u**3-2*v**2*np.e**(-u))*(2*v**2*np.e**(-u)+3*np.e**(v-2)*u**2)
@@ -65,7 +68,7 @@ def dEv(u,v):
 
 3. Finalmente la funcion gradiente de E, que nos calcula el vector ($\frac {\partial} {\partial u} E(u,v),\frac {\partial} {\partial v} E(u,v)$)
    
-~~~
+~~~python
 #Gradiente de E
 def gradE(u,v):
     return np.array([dEu(u,v), dEv(u,v)])
@@ -76,7 +79,7 @@ def gradE(u,v):
 
 Una vez tenemos todo esto, como el enunciado nos especifica los valores $\eta=0.1$ y punto inicial $(u,v)=(1,1)$ tenemos ya todos los ingredientes necesarios para ejecutar el algoritmo de gradiente descendente, solo nos quedaría especificar el error a conseguir y las iteraciones máximas, yo las he establecido en los valores que venían en el template:
 
-~~~
+~~~python
 eta = 0.1 
 maxIter = 10000000000 
 error2get = 1e-14 #Error a alcanzar
@@ -93,7 +96,7 @@ Numero de iteraciones:  10
 Coordenadas obtenidas: ( 1.1572888496465497 ,  0.9108383657484797 )
 ~~~
 
-Es decir, el algoritmo ha tardado 10 iteraciones en llegar a un valor de la función inferior al establecido y el primer punto donde se alcanza un valor de la función menor o igual al error establecido serían las coordenadas obtenidas.
+Es decir, el algoritmo ha tardado 10 iteraciones en llegar a un valor de la función inferior al establecido y el primer punto donde se alcanza un valor de la función menor o igual al error establecido serían las coordenadas obtenidas. Por lo que como podemos ver, se trata de un algoritmo que puede ser muy eficiente y rápido para encontrar mínimos.
 
 Finalmente representamos los resultados obtenidos en un gráfico usando el código de ejemplo que venía en el template:
 
@@ -102,7 +105,7 @@ Finalmente representamos los resultados obtenidos en un gráfico usando el códi
 
 Dicho código es:
 
-~~~
+~~~python
 x = np.linspace(-30, 30, 50)
 y = np.linspace(-30, 30, 50)
 X, Y = np.meshgrid(x, y)
@@ -131,14 +134,14 @@ Igual que antes calculamos las derivadas parciales y el gradiente, e implementam
 
 1. La función $f(x,y)=2\sin\left(2{\pi}y\right)\sin\left(2{\pi}x\right)+\left(x+2\right)^2+2\left(y-2\right)^2$
    
-~~~
+~~~python
 def f(x,y):
     return  (x+2)**2 + 2*(y-2)**2 + 2*np.sin(2*np.pi*x)*np.sin(2*np.pi*y)
 ~~~
 
 2. Las derivadas parciales con respecto a x e y, que serían $\frac {\partial} {\partial x} f(x,y)= 4{\pi}\sin\left(2{\pi}y\right)\cos\left(2{\pi}x\right)+2\left(x+2\right)$ y $\frac {\partial} {\partial y} f(x,y)=4{\pi}\sin\left(2{\pi}x\right)\cos\left(2{\pi}y\right)+4\left(y-2\right)$ 
 
-~~~
+~~~py
 #Derivada parcial de f con respecto a x
 def dfx(x,y):
     return 4*np.pi*np.sin(2*np.pi*y)*np.cos(2*np.pi*x)+2*(x+2)
@@ -150,14 +153,14 @@ def dfy(x,y):
 
 3. La funcion gradiente de $f(x,y)$, que nos calcula el vector ($\frac {\partial} {\partial x} f(x,y),\frac {\partial} {\partial y} f(x,y)$)
    
-~~~
+~~~py
 def gradf(x,y):
     return np.array([dfx(x,y), dfy(x,y)])
 ~~~
 
 4. Finalmente el algoritmo del gradiente descendente.
 
-~~~
+~~~py
 def gradient_descent2(w,eta,num_iterations):
     #
     # gradiente descendente
@@ -197,14 +200,17 @@ Coordenadas obtenidas con eta=0.1: ( -2.8537959548927576 ,  1.9803903507510756 )
 valor obtenido:  0.5343830643374345
 ~~~
 
-Aparentemente, podemos pensar que el learning rate no ha influido mucho, pues en realidad, la distancia al 0 obtenida por los dos algoritmos ha sido muy similar, en cambio, si generamos un gráfico que nos muestre como descendía el valor de la función en cada iteración del gradiente descendente vemos lo siguiente: 
+Aparentemente, podemos pensar que el learning rate no ha influido mucho, pues en realidad, la distancia al 0 obtenida por los dos algoritmos ha sido muy similar (en valor absoluto), en cambio, si generamos un gráfico que nos muestre como descendía el valor de la función en cada iteración del gradiente descendente vemos lo siguiente: 
 
 ![Ejercicio 1.3 apartado a)](Ejercicio1.3a.png)
+--------------------------------------------------------------
 
 
 Y ahora si que podemos ver una gran diferencia entre la elección de un $\eta$ u otro, y es que si el eta es demasiado grande (como ocurre con el $0.1$) puede ser que en cada iteración el paso que demos sea excesivamente grande y se puede dar el caso de que "saltamos" por encima del mínimo, y en cierto modo podemos quedarnos oscilando en torno al mínimo de la función. Por eso observamos en la gráfica valores tan dispares para la función $f(x,y)$ en cada iteración.
 
 En cambio, con el valor 0.01, al ser los pasos en cada iteracion menores, se asegura una mejor convergencia al mínimo, y una vez alcanzado dicho mínimo, la función permanece constante (pues el gradiente es prácticamente 0 y en cada iteración los valores de los pesos no se modifican a penas).
+
+Por lo que dicho esto parece mucho más razonable utilizar $\eta=0.01$ frente al $\eta=0.1$
 
 ### b) Obtener el valor mínimo y los valores de las variables $(x,y)$ en donde se alcanzan cuando el punto de inicio se fija en: $(-0.5,-0.5), (1,1), (2.1,-2.1), (-3,3), (-2,2)$. Generar una tabla con los valores obtenidos. Comentar la dependencia del punto inicial.
 
@@ -245,16 +251,16 @@ Coordenadas obtenidas: ( -2.0 ,  2.0 )
 valor obtenido:  -4.799231304517944e-31
 ~~~
 
-Y para entender un poco mejor lo que ocurre he realizado el siguiente gráfico: 
+Como podemos observar se obtienen resultados muy dispares y no se enteiende bien a simple vista qué está ocurriendo, por eso para entender un poco mejor lo que está pasando he realizado el siguiente gráfico: 
 
 ![Ejercicio 1.3 b)](Ejercicio1.3b.png)
-
+-------------------------------------------------------
 
 Como podemos observar la elección del punto inicial es clave para encontrar un mínimo local u otro. Por ejemplo empezando en el $(1,1)$ el algoritmo se queda en el punto $( 0.6774387808772109 ,  1.290469126542778 )$, que es un mínimo local de la función, pero no un mínimo global, y lo mismo ocurre con los demás puntos, y es que si representamos la función en 3 dimensiones: 
 
 
 ![Ejercicio1.3 b) 2](Ejercicio1.3b2.png)
-
+--------------------------------------------------------
 
 Podemos ver que no es una superficie lisa, sino que tiene como "hoyos" donde nuestro algoritmo puede quedarse "atrapado" dependiendo del valor que tomemos como punto inicial. Cabe destacar el caso del punto inicial (2.1, -2.1) pues en este caso, el algoritmo como podemos observar va sorteando distintos hoyos donde parece que va a quedarse atrapado, hasta llegar a uno donde se queda atrapado y ya permanece constante.
 
@@ -262,7 +268,7 @@ Podemos ver que no es una superficie lisa, sino que tiene como "hoyos" donde nue
 Como comentario sobre la forma en que se han creado las distintas gráficas, para las gráficas que son en 2 dimensiones con las iteraciones y el valor de la función he usado este código: 
 
 
-~~~
+~~~py
 imagenes=[]
 for i in vector_puntos:
     imagenes.append(f(i[0],i[1]))
@@ -302,13 +308,13 @@ En primer lugar, vamos a implementar el algoritmo de la pseudoinversa, dicho alg
 Que surge de la problemática de que no se conoce a priori que la matriz X sea invertible, por lo que para despejar el vector de pesos w de la ecuación se recurre a la pseudoinversa.
 
 
-~~~
+~~~py
 # Pseudoinversa	
 def pseudoinverse(x,y,w):
 
     pseudoinverse=np.linalg.pinv(np.transpose(x).dot(x))
-    X=pseudoinverse.dot(np.transpose(x));
-    w=X.dot(y);
+    X=pseudoinverse.dot(np.transpose(x))
+    w=X.dot(y)
     return w
 ~~~
 
@@ -319,13 +325,13 @@ En segundo lugar implementamos el Gradiente Descendente Estocástico (SGD), el c
 ![SGD 1](SGD1.png)
 ![SGD 2](SGD2.png)
 ----------------------------------------------------------------
-El cual a diferencia del Gradiente Descendente del ejercicio 1 se caracteriza por que en cada iteración del bucle principal, se mezclan los datos de la matriz X y el vector de los pesos no se actualiza teniendo en cuenta todas y cada una de las filas de la matriz X de características, sino que dividimos dicha matriz en Mini Batches (pequeños subgrupos) e iterando sobre dichos subgrupos vamos actualizando el vector de pesos w tomando en consideración únicamente las filas de cada Mini Batch. Y dado que estamos empleando dicho algoritmo para una función lineal, tenemos una expresión para las derivadas parciales (Foto SGD 2) que como podemos ver toma únicamente los M valores del Mini Batch (con M < N siendo N el número de filas de la matriz X). 
+El cual, a diferencia del Gradiente Descendente del ejercicio 1, se caracteriza por que en cada iteración del bucle principal, se mezclan los datos de la matriz X y el vector de los pesos no se actualiza teniendo en cuenta todas y cada una de las filas de la matriz X de características, sino que dividimos dicha matriz en Mini Batches (pequeños subgrupos) e iterando sobre dichos subgrupos vamos actualizando el vector de pesos w tomando en consideración únicamente las filas de cada Mini Batch. Y dado que estamos empleando dicho algoritmo para una función lineal, tenemos una expresión para las derivadas parciales (Foto SGD 2) que como podemos ver toma únicamente los M valores del Mini Batch (con M < N siendo N el número de filas de la matriz X). 
 
 Las ventaja de este algoritmo con respecto al Gradiente Descendente básico es principalmente la ganancia de tiempo en ejecución, pues este algoritmo suele ser más rápido para conjuntos de datos muy grandes.
 
 Dicho esto, el código sería el siguiente:
 
-~~~
+~~~py
 # Gradiente Descendente Estocastico
 def sgd(x,y,eta,num_iterations,error,tam_Minibatch=1):
     N=len(y) #Numero de filas de X e y
@@ -366,7 +372,7 @@ Al salir del for aumentamos las iteraciones en 1 y calculamos el error.
 
 Por último, el error tanto para SGD como para la pseudoinversa una vez se tiene el vector de pesos es el error cuadrático medio, implementado en la siguiente función:
 
-~~~
+~~~py
 # Funcion para calcular el error
 def Err(x,y,w): #Los parámetros son la matriz x de características,  
                 #el vector y de etiquetas y el vector w de pesos
@@ -425,7 +431,7 @@ Por último, para el código que he empleado para representar las gráficas me h
 
 El código con el que se han generado es el siguiente:
 
-~~~
+~~~py
 y0 = np.where(y == -1) #capturo los índices de los elementos con -1
 y1 = np.where(y == 1) #capturo los índices de los elementos con 1
 #x_2 contiene dos arrays, uno en cada componente, el primero tiene los
@@ -440,7 +446,7 @@ plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'orange', label = 'Numero 5')
 t = np.linspace(0,1, 100) 
 #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
 plt.plot( t, (-w[0]-w[1]*t)/w[2], c = 'red', label='Recta de regresión') 
-plt.legend();
+plt.legend()
 plt.title("Ejercicio1 SGD")
 plt.xlabel('Intensidad')
 plt.ylabel('Simetría')
@@ -455,7 +461,7 @@ plt.show()
 
 En primer lugar establezco una semilla para los procesos aleatroios que sucedan en este apartado y los siguientes, y después con la función simula_unif() genero los puntos y hago un scatter plot obteniendo estos resultados: 
 
-~~~
+~~~py
 #Establezco la semilla para que los procesos aleatorios sean reproducibles en cualquier máquina
 np.random.seed(2) 
 #Genero mil puntos en el cuadrado [-1,1]x[-1,1]
@@ -477,7 +483,7 @@ plt.show();
 
 En primer lugar definimos la función que usaremos para asignar las etiquetas: 
 
-~~~
+~~~py
 def sign(x):
 	if x >= 0:
 		return 1
@@ -490,7 +496,7 @@ def f1(x1, x2):
 
 En segundo lugar, genero el vector de etiquetas, para ello itero sobre las filas de X y evalúo cada fila en la función definida anteriormente. Para añadir ruido, convierto los datos en un DataFrame de Pandas que tiene funciones útiles para esto y usando la función sample, tomo una muestra aleatoria de un 10% de los datos y multiplico las etiquetas de dichos datos por -1 para cambiar su signo.
 
-~~~
+~~~py
 y=[] #Vector de etiquetas
 for i in X:
     y.append(f1(i[0],i[1])) #para cada fila de X genero el valor de su
@@ -566,7 +572,7 @@ A la vista de los resultados obtenidos, el modelo no se ajusta bien a los datos 
 
 Para construir la nueva matriz de características empleo el siguiente código: 
 
-~~~
+~~~py
 x1x2=X[:,0]*X[:,1] #multiplicación de las dos columnas elemento a 
 #elemento
 x1x2=x1x2.reshape(-1,1)
@@ -583,7 +589,7 @@ Donde x1x2 es la columna que contiene el producto de la columna x1 por la column
 
 Por otro lado y como comentario, esta vez el código empleado hasta ahora no nos sirve (solo mantenemos el código para representar la nube de puntos), pues no es una función lineal. por lo que se procede de manera distinta:
 
-~~~
+~~~py
 def h(x,y,w):
     return w[0] + w[1]*x + w[2]*y + w[3]*x*y + w[4]*x*x + w[5]*y*y
 
@@ -609,7 +615,7 @@ for i  in range(len(t1)):
 plt.contour(t1,t2, np.transpose(z),0, label='Función obtenida', linewidths=2) #Finalmente usando la función contour de pyplot 
 #dibujamos las líneas de contorno, y especifico que quiero que 
 #aparezca solo una poniendo un 0
-plt.legend();
+plt.legend()
 plt.title("Ejercicio2.2 apartado c) Recta de regresión")
 
 plt.figure()
