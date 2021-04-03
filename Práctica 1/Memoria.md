@@ -577,14 +577,14 @@ Realizando el mismo experimento 1000 veces se obtienen los siguientes resultados
 Tras mil iteraciones repitiendo el ejemplo anterior:
 
 Ein medio:  0.9258693113953839
-Eout medio:  1.0025869854054248
+Eout medio:  0.9327446032055876
 ~~~
 
 El código básicamente es un bucle for realizando 1000 veces los pasos de a)-c) y creando test set para cada iteración.
 
 #### e) Valore que tan bueno considera que es el ajuste con este modelo lineal a la vista de los valores medios de Ein y Eout.
 
-A la vista de los resultados obtenidos, el modelo no se ajusta bien a los datos obteniendo errores altos en el Training set y en el test set. Y es por eso que consiedero que se deberían añadir características no lineales para tratar de aproximar mejor los datos.
+A la vista de los resultados obtenidos, el modelo no se ajusta bien a los datos obteniendo errores altos en el Training set y en el test set, de hecho se obtiene un error elevado a la hora de aproximar los datos, de hecho podría tratarse de un caso de "underfitting", ya que el modelo no consigue captar las variaciones de los datos, por eso  considero que se deberían añadir características no lineales para obtener un mejor modelo.
 
 #### Repetir el mismo experimento anterior pero usando características no lineales. Ahora usaremos el siguiente vector de características: $\Phi_2(x)=(1,x_1,x_2,x_1x_2,x_1^2,x_2^2)$. Ajustar el nuevo modelo de regresión lineal y calcular el nuevo vector de pesos w. Calcular los errores promedio de Ein y Eout.
 
@@ -692,7 +692,7 @@ Eout medio:  0.5867079177511026
 
 #### A la vista de los resultados de los errores promedios Ein y Eout obtenidos en los dos experimentos ¿Qué modelo considera que es el más adecuado? Justifique la decisión. 
 
-Dados los resultados obtenidos considero que el modelo que mejor se ajusta a este problema es el segundo, con vector de características no lineales, pues con dicho modelo se obtiene un ajuste que tiene menor Error en el training set (0.9258693113953839 frente a  0.5791197645316455) y no ocurre overfitting, es decir, a pesar de que el modelo se ajusta muy bien en el training set, en el test set consigue mantener un error prácticamente idéntico y en ambos casos es un error aceptable. Por otra parte, el vector de características original y el modelo de regresión lineal, además de conseguir un error mayor en el training set, en el test set se empeora también considerablemente hasta llegar a un error medio de  1.0025869854054248, en este caso tenemos un ejemplo de leve "underfitting", pues el modelo no es capaz de captar las variaciones de los datos correctamente, por ello cosidero que es más adecuado el segundo modelo.
+Dados los resultados obtenidos considero que el modelo que mejor se ajusta a este problema es el segundo, con vector de características no lineales, pues con dicho modelo se obtiene un ajuste que tiene menor Error en el training set (0.9258693113953839 frente a  0.5791197645316455) y no ocurre overfitting, es decir, a pesar de que el modelo se ajusta muy bien en el training set, en el test set consigue mantener un error prácticamente idéntico y en ambos casos es un error aceptable. Por otra parte, con el vector de características original y el modelo de regresión lineal,como hemos comentado antes, tenemos un ejemplo de leve "underfitting", pues el modelo no es capaz de captar las variaciones de los datos correctamente, por ello cosidero que es más adecuado el segundo modelo.
 
 
 ## Ejercicio Bonus

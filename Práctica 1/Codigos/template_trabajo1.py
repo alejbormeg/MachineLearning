@@ -592,10 +592,10 @@ for i in range(1000):
     
     ###########################PREPARAMOS EL TEST SET ###########################
     X=simula_unif(1000,2,1) #Generamos 1000 datos nuevos 
-    X=np.concatenate((unos,X),axis=1)
     y=[]
     for i in X:
         y.append(f1(i[0],i[1])) #Generamos las etiquetas para los nuevos datos
+    X=np.concatenate((unos,X),axis=1)
     X_=pd.DataFrame(data=X); #Convierto la matriz X en un Dataframe de Pandas, que es más cómodo de usar 
     X_=X_.sample(frac=0.10,random_state=1); #Hacemos que tome un 10% de los datos de forma aleatoria
 
@@ -612,7 +612,7 @@ print ("Eout medio: ", E_out/1000.0)
 input("\n--- Pulsar tecla para continuar ---\n")
 
 #Ein medio:  0.9258693113953839
-#Eout medio:   1.0025869854054248
+#Eout medio:   0.9327446032055876
 ###################################################################################################################################
 ###################################################################################################################################
 ###################################################################################################################################
