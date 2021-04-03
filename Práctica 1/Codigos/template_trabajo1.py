@@ -273,7 +273,7 @@ Z = f(X, Y) #E_w([X, Y])
 fig = plt.figure()
 ax = Axes3D(fig)
 surf = ax.plot_surface(X, Y, Z, edgecolor='none', rstride=1,
-                        cstride=1, cmap='jet')
+                        cstride=1, cmap='coolwarm')
 ax.set(title='Ejercicio 1.3. Función sobre la que se calcula el descenso de gradiente')
 ax.set_xlabel('x')
 ax.set_ylabel('y')
@@ -282,10 +282,6 @@ ax.view_init(0,60)
 plt.show()
 
 input("\n--- Pulsar tecla para continuar ---\n")
-
-
-
-
 
 #####################################################################################################################################
 #####################################################################################################################################
@@ -816,3 +812,253 @@ print ("Eout medio: ", E_out/1000.0)
 #Ein medio:  0.5791197645316455
 #Eout medio:  0.5867079177511026
 input("\n--- Pulsar tecla para continuar ---\n")
+
+
+##########################################################################################################################################
+##########################################################################################################################################
+##########################################################################################################################################
+##################################################### BONUS MÉTODO DE NEWTON #############################################################
+
+
+################# Segundas derivadas 
+
+def d2fdx2(x,y):
+    return 2-8*np.pi**2*np.sin(2*np.pi*y)*np.sin(2*np.pi*x)
+
+def d2fdxdy(x,y):
+    return 8*np.pi**2*np.cos(2*np.pi*x)*np.cos(2*np.pi*y)
+
+def d2fdydx(x,y):
+    return 8*np.pi**2*np.cos(2*np.pi*x)*np.cos(2*np.pi*y)
+
+def d2fdy2(x,y):
+    return 4-8*np.pi**2*np.sin(2*np.pi*y)*np.sin(2*np.pi*x)
+
+################# Matriz Hessiana de segundas derivadas 
+def Hessianf(x,y):
+    return np.array([[d2fdx2(x,y),d2fdxdy(x,y)],[d2fdydx(x,y),d2fdy2(x,y)]])
+
+
+def NewtonsMethod(w,eta,num_iterations):
+    iterations=0
+    vector_puntos=np.array([[w[0],w[1]]])
+    while iterations<num_iterations:
+        w=w-eta*np.linalg.inv(Hessianf(w[0],w[1])).dot(gradf(w[0],w[1]))
+        iterations=iterations + 1 
+        vector_puntos=np.append(vector_puntos, [[w[0],w[1]]], axis=0) #Voy guardando los puntos obtenidos en un array de numpy para luego hacer el gráfico
+             
+    return w, iterations, vector_puntos
+
+eta = 0.01 
+maxIter = 50
+initial_point = np.array([-1.0,1.0])
+w, it, vector_puntos = NewtonsMethod(initial_point, eta,maxIter) #En este caso como no se especifica el error que se desea obtener, hace las 50 iteraciones unicamente
+
+print('Funcion a minimizar: f(x,y)=(x+2)^2 + 2*(y-2)^2 + 2*sin(2*pi*x)*sin(2*pi*y)')
+print('Usamos el método de Newton')
+print ('Numero de iteraciones: ', it)
+print ('Coordenadas obtenidas con eta=0.01 : (', w[0], ', ', w[1],')')
+print ('valor obtenido: ', f(w[0],w[1]))
+################## Representamos un un gráfico los datos ##############################
+imagenes=[]
+for i in vector_puntos:
+    imagenes.append(f(i[0],i[1])) #Calculamos las imágenes de los puntos obtenidos en el gradiente descendente
+
+iteraciones=np.arange(it+1) #HAcemos un array con las 50 iteraciones
+plt.plot(iteraciones, imagenes, label='eta=0.01')
+plt.xlabel('Numero de Iteraciones')
+plt.ylabel('Valor de la función ')
+plt.title('Ejercicio Bonus ')
+input("\n--- Pulsar tecla para continuar ---\n")
+
+
+eta = 0.1  #Cambiamos el valor de la tasa de aprendizaje
+w, it, vector_puntos = NewtonsMethod(initial_point, eta,maxIter)
+print('Funcion a minimizar: f(x,y)=(x+2)^2 + 2*(y-2)^2 + 2*sin(2*pi*x)*sin(2*pi*y)')
+print('Usamos el método de Newton')
+print ('Numero de iteraciones: ', it)
+print ('Coordenadas obtenidas con eta=0.1: (', w[0], ', ', w[1],')')
+print ('valor obtenido: ', f(w[0],w[1]))
+
+imagenes=[]
+for i in vector_puntos:
+    imagenes.append(f(i[0],i[1]))
+
+iteraciones=np.arange(it+1)
+plt.plot(iteraciones, imagenes, label='eta=0.1')
+
+
+eta=1
+w, it, vector_puntos = NewtonsMethod(initial_point, eta,maxIter)
+print('Funcion a minimizar: f(x,y)=(x+2)^2 + 2*(y-2)^2 + 2*sin(2*pi*x)*sin(2*pi*y)')
+print('Usamos el método de Newton')
+print ('Numero de iteraciones: ', it)
+print ('Coordenadas obtenidas con eta=1: (', w[0], ', ', w[1],')')
+print ('valor obtenido: ', f(w[0],w[1]))
+
+imagenes=[]
+for i in vector_puntos:
+    imagenes.append(f(i[0],i[1]))
+
+iteraciones=np.arange(it+1)
+plt.plot(iteraciones, imagenes, label='eta=1')
+plt.legend()
+plt.show() 
+
+input("\n--- Pulsar tecla para continuar ---\n")
+
+
+
+#######################################################################################################################################
+#################################################### Bonus apartado b)#########################################################
+eta = 1
+x=-0.5
+y=-0.5 
+maxIter = 100
+error2get = 1e-14
+initial_point = np.array([x,y])
+w, it, vector_puntos = NewtonsMethod(initial_point, eta,maxIter)
+print('Puntos iniciales (x,y)= (',x, ',', y,')')
+print ('Numero de iteraciones: ', it)
+print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
+print ('valor obtenido: ', f(w[0],w[1]))
+
+#Representamos en un gráfico
+imagenes=[]
+for i in vector_puntos:
+    imagenes.append(f(i[0],i[1]))
+
+iteraciones=np.arange(it+1)
+plt.plot(iteraciones, imagenes, label='Pto inicial (-0.5,-0.5)')
+plt.xlabel('Numero de Iteraciones')
+plt.ylabel('Valor de la función ')
+plt.title('Pruebas con el metodo de Newton)')
+plt.legend()
+plt.show()
+
+print("\n--------------------------\n")
+x=1
+y=1
+initial_point = np.array([x,y])
+w, it, vector_puntos = NewtonsMethod(initial_point, eta,maxIter)
+print('Puntos iniciales (x,y)= (',x, ',', y,')')
+print ('Numero de iteraciones: ', it)
+print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
+print ('valor obtenido: ', f(w[0],w[1]))
+
+#Representamos en un gráfico
+imagenes=[]
+for i in vector_puntos:
+    imagenes.append(f(i[0],i[1]))
+
+iteraciones=np.arange(it+1)
+plt.plot(iteraciones, imagenes, label='Pto inicial(1,1)')
+plt.xlabel('Numero de Iteraciones')
+plt.ylabel('Valor de la función ')
+plt.title('Pruebas con el metodo de Newton)')
+plt.legend()
+plt.show()
+
+print("\n--------------------------\n")
+x=2.1
+y=-2.1
+initial_point = np.array([x,y])
+w, it, vector_puntos = NewtonsMethod(initial_point, eta,maxIter)
+print('Puntos iniciales (x,y)= (',x, ',', y,')')
+print ('Numero de iteraciones: ', it)
+print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
+print ('valor obtenido: ', f(w[0],w[1]))
+
+#Representamos en un gráfico
+imagenes=[]
+for i in vector_puntos:
+    imagenes.append(f(i[0],i[1]))
+
+iteraciones=np.arange(it+1)
+plt.plot(iteraciones, imagenes, label='Pto inicial (2.1,-2.1)')
+plt.xlabel('Numero de Iteraciones')
+plt.ylabel('Valor de la función ')
+plt.title('Pruebas con el metodo de Newton)')
+plt.legend()
+plt.show()
+
+print("\n--------------------------\n")
+x=-3
+y=3
+initial_point = np.array([x,y])
+w, it, vector_puntos = NewtonsMethod(initial_point, eta,maxIter)
+print('Puntos iniciales (x,y)= (',x, ',', y,')')
+print ('Numero de iteraciones: ', it)
+print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
+print ('valor obtenido: ', f(w[0],w[1]))
+#Representamos en un gráfico
+imagenes=[]
+for i in vector_puntos:
+    imagenes.append(f(i[0],i[1]))
+
+iteraciones=np.arange(it+1)
+plt.plot(iteraciones, imagenes, label='Pto inicial (3,3)')
+plt.xlabel('Numero de Iteraciones')
+plt.ylabel('Valor de la función ')
+plt.title('Pruebas con el metodo de Newton)')
+plt.legend()
+plt.show()
+
+print("\n--------------------------\n")
+x=-2
+y=2
+initial_point = np.array([x,y])
+w, it, vector_puntos = NewtonsMethod(initial_point, eta,maxIter)
+print('Puntos iniciales (x,y)= (',x, ',', y,')')
+print ('Numero de iteraciones: ', it)
+print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
+print ('valor obtenido: ', f(w[0],w[1]))
+#Representamos en un gráfico
+imagenes=[]
+for i in vector_puntos:
+    imagenes.append(f(i[0],i[1]))
+
+iteraciones=np.arange(it+1)
+plt.plot(iteraciones, imagenes, label='Pto inicial(-2,2)')
+
+plt.xlabel('Numero de Iteraciones')
+plt.ylabel('Valor de la función ')
+plt.title('Pruebas con el metodo de Newton)')
+plt.legend()
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

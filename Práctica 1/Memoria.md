@@ -8,7 +8,7 @@ documentclass: report
 ## Ejercicio 1 
 ### Búsqueda Iterativa de óptimos
 
-### 1. Implementar el algoritmo de gradiente descendente
+#### 1. Implementar el algoritmo de gradiente descendente
 
 El algoritmo implementado es el siguiente, que puede verse en el fichero template_trabajo1.py 
 
@@ -45,9 +45,9 @@ Tras esto evaluamos la función en el nuevo punto, lo que nos dará el error del
 Como podemos ver, el correcto funcionamiento del algoritmo depende entre otras cosas del eta establecido y del punto inicial establecido, hechos que veremos mejor en los ejercicios siguientes.
 
 
-### 2. Considerar la función E(u, v) = $\left(\mathrm{e}^{v-2}u^3-2v^2\mathrm{e}^{-u}\right)^2$. Usar gradiente descendente para encontrar un mínimo de esta función, comenzando desde el punto $(u, v) = (1, 1)$ y usando una tasa de aprendizaje $\eta= 0.1$
+#### 2. Considerar la función E(u, v) = $\left(\mathrm{e}^{v-2}u^3-2v^2\mathrm{e}^{-u}\right)^2$. Usar gradiente descendente para encontrar un mínimo de esta función, comenzando desde el punto $(u, v) = (1, 1)$ y usando una tasa de aprendizaje $\eta= 0.1$
 
-### a) Calcular analíticamente y mostrar la expresión del gradiente de la función E(u, v) 
+#### a) Calcular analíticamente y mostrar la expresión del gradiente de la función E(u, v) 
 
 1. La función E(u,v)=$\left(\mathrm{e}^{v-2}u^3-2v^2\mathrm{e}^{-u}\right)^2$
    
@@ -76,9 +76,9 @@ def dEv(u,v):
 def gradE(u,v):
     return np.array([dEu(u,v), dEv(u,v)])
 ~~~
-### b)¿Cuántas iteraciones tarda el algoritmo en obtener por primera vez un valor de E(u,v) inferior a 10^(-14) ?.
+#### b)¿Cuántas iteraciones tarda el algoritmo en obtener por primera vez un valor de E(u,v) inferior a 10^(-14) ?.
 
-### c)¿En qué coordenadas (u,v) se alcanzó por primera vez un valor igual o menor a 10^-14 en el apartado anterior?
+#### c)¿En qué coordenadas (u,v) se alcanzó por primera vez un valor igual o menor a 10^-14 en el apartado anterior?
 
 Una vez tenemos todo esto, como el enunciado nos especifica los valores $\eta=0.1$ y punto inicial $(u,v)=(1,1)$ tenemos ya todos los ingredientes necesarios para ejecutar el algoritmo de gradiente descendente, solo nos quedaría especificar el error a conseguir y las iteraciones máximas, yo las he establecido en los valores que venían en el template:
 
@@ -131,7 +131,7 @@ En resumen, generamos un vector x e y de 50 puntos equidistantes entre -30 y 30,
 
 Finalmente representamos el mínimo en el mismo gráfico usando la función plot, donde le pasamos la coordenada u, v, el valor de la función en ese punto y queremos que se represente como una estrella roja, por eso usamos 'r*' y de tamaño 10.
 
-### 3. Considerar ahora la función $f(x,y)= 2\sin\left(2{\pi}x\right)\sin\left(2{\pi}y\right)+2\left(y-2\right)^2+\left(x+2\right)^2$
+#### 3. Considerar ahora la función $f(x,y)= 2\sin\left(2{\pi}x\right)\sin\left(2{\pi}y\right)+2\left(y-2\right)^2+\left(x+2\right)^2$
 
 Igual que antes calculamos las derivadas parciales y el gradiente, e implementamos el gradiente descendente de acuerdo a la nueva función (es idéntico al del apartado anterior salvo que la función y el gradiente cambian y que no se especifica error)
 
@@ -183,7 +183,7 @@ def gradient_descent2(w,eta,num_iterations):
 ~~~
 como comentario al gradiente descendente, en este caso, también devuelvo el vector de puntos que he ido generando en cada iteración para poder hacer las gráficas del apartado siguiente.
 
-### a) Usar gradiente descendente para minimizar esta función. Usar como punto inicial $(x_0=-1, y_0=1)$, tasa de aprendizaje $eta=0.01$ y un máximo de 50 iteraciones. Repetir el experimento pero usando $\eta=0.1$, comentar las diferencias y su dependencia de $\eta$.
+#### a) Usar gradiente descendente para minimizar esta función. Usar como punto inicial $(x_0=-1, y_0=1)$, tasa de aprendizaje $eta=0.01$ y un máximo de 50 iteraciones. Repetir el experimento pero usando $\eta=0.1$, comentar las diferencias y su dependencia de $\eta$.
 
 Tras las 50 iteraciones los resultados obtenidos para $\eta = 0.01$ y el punto inicial $(x_0=-1, y_0=1)$ son: 
 
@@ -215,7 +215,7 @@ En cambio, con el valor 0.01, al ser los pasos en cada iteracion menores, se ase
 
 Por lo que dicho esto parece mucho más razonable utilizar $\eta=0.01$ frente al $\eta=0.1$
 
-### b) Obtener el valor mínimo y los valores de las variables $(x,y)$ en donde se alcanzan cuando el punto de inicio se fija en: $(-0.5,-0.5), (1,1), (2.1,-2.1), (-3,3), (-2,2)$. Generar una tabla con los valores obtenidos. Comentar la dependencia del punto inicial.
+#### b) Obtener el valor mínimo y los valores de las variables $(x,y)$ en donde se alcanzan cuando el punto de inicio se fija en: $(-0.5,-0.5), (1,1), (2.1,-2.1), (-3,3), (-2,2)$. Generar una tabla con los valores obtenidos. Comentar la dependencia del punto inicial.
 
 En este caso los valores obtenidos son estos: 
 
@@ -259,6 +259,20 @@ Como podemos observar se obtienen resultados muy dispares y no se enteiende bien
 ![Ejercicio 1.3 b)](Ejercicio1.3b.png)
 -------------------------------------------------------
 
+Colocándolos en una tabla quedan de la siguiente forma: 
+
+|Punto inicial| w obtenido | f(w)|
+|--| -- | --|
+|( -0.5 , -0.5 )|( -0.7934994705090673 ,  -0.12596575869895063 )|9.125146662901855|
+|( 1 , 1 )|( 0.6774387808772109 ,  1.290469126542778 )|6.4375695988659185|
+|( 2.1 , -2.1 )|( 0.14880582855887767 ,  -0.09606770499224294 )|12.490971442685037|
+|( -3 , 3 )|( -2.7309356482481055 ,  2.7132791261667037 )|-0.38124949743809955|
+|( -2 , 2 )|( -2.0 ,  2.0 )|-4.799231304517944e-31|
+------------------------------------
+
+
+
+
 Como podemos observar la elección del punto inicial es clave para encontrar un mínimo local u otro. Por ejemplo empezando en el $(1,1)$ el algoritmo se queda en el punto $( 0.6774387808772109 ,  1.290469126542778 )$, que es un mínimo local de la función, pero no un mínimo global, y lo mismo ocurre con los demás puntos, y es que si representamos la función en 3 dimensiones: 
 
 
@@ -286,7 +300,7 @@ Finalmente añadiendo plt.show() mostraba en el mismo gráfico todas las funcion
 
 por otro lado, para la última gráfica he usado el mismo código del ejercicio 1.2.
 
-### 4.¿Cuál sería su conclusión sobre la verdadera dificultad de encontrar el mínimo global de una función arbitraria?
+#### 4.¿Cuál sería su conclusión sobre la verdadera dificultad de encontrar el mínimo global de una función arbitraria?
 
 Por todo lo visto en apartados anteriores, la dificultad para encontrar el mínimo global de una función arbitraria, a mi modo de entender, reside en la correcta elección del punto inicial donde lanzar el algoritmo y de el $\eta$ adecuado, pues como vimos en el ejercicio 1.2 un $\eta$ demasiado grande puede hacer que nuestro algoritmo no converga al mínimo, y como vimos en el ejercicio 1.3, con un $\eta$ adecuado, si no tomamos un buen punto de partida, nuestro algoritmo puede no converger al mínimo global y quedar atrapado en mínimos locales. Por lo tanto a mi parecer, dada una función arbitraria $f(x,y)$ sería una buena práctica, tomar un conjunto arbitrario de puntos iniciales y un conjunto arbitrario de posibles valores de $\eta$ y llevar a cabo un estudio de con qué punto inicial y con qué valor de $\eta$ se alcanza el "mejor" mínimo de la función.
 
@@ -299,7 +313,7 @@ Este ejercicio ajusta modelos de regresión a vectores de características extra
 
 
 ### Ejercicio 2.1
-### Estimar un modelo de regresión lineal a partir de los datos proporcionados por los vectores de características (Intensidad promedio, Simetría) usando tanto el algoritmo de la pseudo-inversa como el Gradiente Descendente Estocático (SGD). Las etiquetasa serán (-1,1), una por cada vector de cada uno de los números. Pintar las soluciones obtenidas junto con los datos usados en el ajuste. Valorar predicciones usando Ein y Eout (para E out calcular las predicciones usando los datos del fichero de test)
+#### Estimar un modelo de regresión lineal a partir de los datos proporcionados por los vectores de características (Intensidad promedio, Simetría) usando tanto el algoritmo de la pseudo-inversa como el Gradiente Descendente Estocático (SGD). Las etiquetasa serán (-1,1), una por cada vector de cada uno de los números. Pintar las soluciones obtenidas junto con los datos usados en el ajuste. Valorar predicciones usando Ein y Eout (para E out calcular las predicciones usando los datos del fichero de test)
 
 
 En primer lugar, vamos a implementar el algoritmo de la pseudoinversa, dicho algoritmo es el siguiente: 
@@ -459,9 +473,9 @@ plt.show()
 ~~~
 
 ### Ejercicio 2.2
-### En este apartado exploramos como se transforman los errores Ein y Eout cuando aumentamos la complejidad del modelo lineal usado. Ahora hacemos uso de la función simula_unif(N,2,size) que nos devuelve N coordenadas 2D de puntos uniformemente muestreados dentro del cuadrado definido por [-size,size]x[-size,size]
+#### En este apartado exploramos como se transforman los errores Ein y Eout cuando aumentamos la complejidad del modelo lineal usado. Ahora hacemos uso de la función simula_unif(N,2,size) que nos devuelve N coordenadas 2D de puntos uniformemente muestreados dentro del cuadrado definido por [-size,size]x[-size,size]
 ### Experimento 
-### a) Generar una muestra de entrenamiento de N=1000 puntos en el cuadrado X=[-1,1]x[-1,1]. Pintar el mapa de puntos 2D. (ver función de ayuda)
+#### a) Generar una muestra de entrenamiento de N=1000 puntos en el cuadrado X=[-1,1]x[-1,1]. Pintar el mapa de puntos 2D. (ver función de ayuda)
 
 En primer lugar establezco una semilla para los procesos aleatroios que sucedan en este apartado y los siguientes, y después con la función simula_unif() genero los puntos y hago un scatter plot obteniendo estos resultados: 
 
@@ -483,7 +497,7 @@ plt.show();
 
 ---------------------------------------------------------
 
-### b) Consideramos la función $f(x_1, x_2)=sign((x_1-0.2)^2+ x_2^2-0.6)$ que usaremos para asignar una etiqueta a cada punto de la muestra anterior. Introducimos ruido sobre las etiquetas cambiando aleatoriamente el signo de un 10% de las mismas. Pintar el mapa de etiquetas obtenido.
+#### b) Consideramos la función $f(x_1, x_2)=sign((x_1-0.2)^2+ x_2^2-0.6)$ que usaremos para asignar una etiqueta a cada punto de la muestra anterior. Introducimos ruido sobre las etiquetas cambiando aleatoriamente el signo de un 10% de las mismas. Pintar el mapa de etiquetas obtenido.
 
 En primer lugar definimos la función que usaremos para asignar las etiquetas: 
 
@@ -521,7 +535,7 @@ Finalmente realizo un scatterplot, coloreando los puntos según su etiqueta, usa
 ![Morados (y=1) Amarillos(y=-1)](Ejercicio2.2b.png)
 ---------------------------------------------------------
 
-### c) Usando como vector de características $(1,x_1,x_2)$ ajustar un modelo de regresión lineal al conjunto de datos generado y estimar los pesos w. Estimar el error de ajuste Ein usando Gradiente Descendente Estocástico (SGD).
+#### c) Usando como vector de características $(1,x_1,x_2)$ ajustar un modelo de regresión lineal al conjunto de datos generado y estimar los pesos w. Estimar el error de ajuste Ein usando Gradiente Descendente Estocástico (SGD).
 
 En primer lugar convertimos el vector y en un np.array() y lo transformamos en un vector columna. Después creamos un vector de unos que añadimos a la matriz x de características como primera columna.
 Una vez hecho esto aplicamos el algoritmo del SGD del ejercicio anterior y obtenemos los siguientes resultados:
@@ -555,7 +569,7 @@ Ein:  0.9278030562928541
 ![Pseudoinversa](Ejercicio2.2cPseudo.png)
 ---------------------------------------------------------
 
-### d) Ejecutar todo el experimento definido por a)-c) 1000 veces (generamos 1000 muestras diferentes) y Calcular el valor medio de los errores Ein de las 1000 muestras y generar 1000 puntos nuevos por cada iteración y calcular con ellos el valor de Eout en dicha iteración.Calcular el valor medio de Eout en todas las iteraciones.
+#### d) Ejecutar todo el experimento definido por a)-c) 1000 veces (generamos 1000 muestras diferentes) y Calcular el valor medio de los errores Ein de las 1000 muestras y generar 1000 puntos nuevos por cada iteración y calcular con ellos el valor de Eout en dicha iteración.Calcular el valor medio de Eout en todas las iteraciones.
 
 Realizando el mismo experimento 1000 veces se obtienen los siguientes resultados: 
 
@@ -568,11 +582,11 @@ Eout medio:  1.0025869854054248
 
 El código básicamente es un bucle for realizando 1000 veces los pasos de a)-c) y creando test set para cada iteración.
 
-### e) Valore que tan bueno considera que es el ajuste con este modelo lineal a la vista de los valores medios de Ein y Eout.
+#### e) Valore que tan bueno considera que es el ajuste con este modelo lineal a la vista de los valores medios de Ein y Eout.
 
 A la vista de los resultados obtenidos, el modelo no se ajusta bien a los datos obteniendo errores altos en el Training set y en el test set. Y es por eso que consiedero que se deberían añadir características no lineales para tratar de aproximar mejor los datos.
 
-### Repetir el mismo experimento anterior pero usando características no lineales. Ahora usaremos el siguiente vector de características: $\Phi_2(x)=(1,x_1,x_2,x_1x_2,x_1^2,x_2^2)$. Ajustar el nuevo modelo de regresión lineal y calcular el nuevo vector de pesos w. Calcular los errores promedio de Ein y Eout.
+#### Repetir el mismo experimento anterior pero usando características no lineales. Ahora usaremos el siguiente vector de características: $\Phi_2(x)=(1,x_1,x_2,x_1x_2,x_1^2,x_2^2)$. Ajustar el nuevo modelo de regresión lineal y calcular el nuevo vector de pesos w. Calcular los errores promedio de Ein y Eout.
 
 Para construir la nueva matriz de características empleo el siguiente código: 
 
@@ -676,6 +690,135 @@ Ein medio:  0.5791197645316455
 Eout medio:  0.5867079177511026
 ~~~
 
-### A la vista de los resultados de los errores promedios Ein y Eout obtenidos en los dos experimentos ¿Qué modelo considera que es el más adecuado? Justifique la decisión. 
+#### A la vista de los resultados de los errores promedios Ein y Eout obtenidos en los dos experimentos ¿Qué modelo considera que es el más adecuado? Justifique la decisión. 
 
 Dados los resultados obtenidos considero que el modelo que mejor se ajusta a este problema es el segundo, con vector de características no lineales, pues con dicho modelo se obtiene un ajuste que tiene menor Error en el training set (0.9258693113953839 frente a  0.5791197645316455) y no ocurre overfitting, es decir, a pesar de que el modelo se ajusta muy bien en el training set, en el test set consigue mantener un error prácticamente idéntico y en ambos casos es un error aceptable. Por otra parte, el vector de características original y el modelo de regresión lineal, además de conseguir un error mayor en el training set, en el test set se empeora también considerablemente hasta llegar a un error medio de  1.0025869854054248, en este caso tenemos un ejemplo de leve "underfitting", pues el modelo no es capaz de captar las variaciones de los datos correctamente, por ello cosidero que es más adecuado el segundo modelo.
+
+
+## Ejercicio Bonus
+
+#### Método de Newton. Implementar el algoritmo de minimización de Newton y aplicarlo a la función $f(x,y)$ dada en el ejercicio 3. Desarrolle los mismos experimentos usando los mismos puntos de inicio.
+
+##### 1. Generar un gráfico de como desciende el valor de la función con las iteraciones. 
+
+##### 2. Extraer conclusiones sobre las conductas de los algoritmos comparando la curva de decrecimiento de la función calculada en el apartado anterior y la correspondiente obtenida con gradiente descendente.
+
+Igual que en el ejercicio 1.3 estamos considerando la función: 
+
+$f(x,y)=2\sin\left(2{\pi}y\right)\sin\left(2{\pi}x\right)+\left(x+2\right)^2+2\left(y-2\right)^2$
+
+Y dado que el método de Newton es el siguiente:
+
+![Método de Newton](NewtonTeoria.png)
+------------------------------------------------------------
+
+Como podemos observar tenemos que calcular la matriz Hessiana de las segundas derivadas de $f(x,y)$:
+
+$$Hess(f)=
+\begin{bmatrix}
+\frac {\partial^2} {\partial x^2} f(x,y) & \frac {\partial^2} {\partial x \partial y} f(x,y) \\
+\frac {\partial^2} {\partial y \partial x} f(x,y)& \frac {\partial^2} {\partial y^2} f(x,y)
+\end{bmatrix}
+$$
+Dónde 
+$\frac {\partial^2} {\partial x^2}f(x,y) =2-8{\pi}^2\sin\left(2{\pi}y\right)\sin\left(2{\pi}x\right)$, 
+$\frac {\partial^2} {\partial x \partial y} f(x,y)=8{\pi}^2\cos\left(2{\pi}x\right)\cos\left(2{\pi}y\right)$
+
+$\frac {\partial^2} {\partial y \partial x} f(x,y)=8{\pi}^2\cos\left(2{\pi}y\right)\cos\left(2{\pi}x\right)$
+
+$\frac {\partial^2} {\partial y^2} f(x,y)=4-8{\pi}^2\sin\left(2{\pi}x\right)\sin\left(2{\pi}y\right)$
+
+Y reutilizando las funciones del ejercicio 1.3 sólo habría que implementar las siguientes funciones:
+
+~~~py
+################# Segundas derivadas 
+
+def d2fdx2(x,y):
+    return 2-8*np.pi**2*np.sin(2*np.pi*y)*np.sin(2*np.pi*x)
+
+def d2fdxdy(x,y):
+    return 8*np.pi**2*np.cos(2*np.pi*x)*np.cos(2*np.pi*y)
+
+def d2fdydx(x,y):
+    return 8*np.pi**2*np.cos(2*np.pi*x)*np.cos(2*np.pi*y)
+
+def d2fdy2(x,y):
+    return 4-8*np.pi**2*np.sin(2*np.pi*y)*np.sin(2*np.pi*x)
+
+################# Matriz Hessiana de segundas derivadas 
+def Hessianf(x,y):
+    return np.array([[d2fdx2(x,y),d2fdxdy(x,y)],[d2fdydx(x,y),d2fdy2(x,y)]])
+~~~
+
+Finalmente, el algoritmo quedaría de la siguiente manera:
+
+~~~py
+def NewtonsMethod(w,eta,num_iterations):
+    iterations=0
+    vector_puntos=np.array([[w[0],w[1]]])
+    while iterations<num_iterations:
+        w=w-eta*np.linalg.inv(Hessianf(w[0],w[1])).dot(gradf(w[0],w[1]))
+        iterations=iterations + 1 
+        vector_puntos=np.append(vector_puntos, [[w[0],w[1]]], axis=0) #Voy guardando los puntos obtenidos en un array de numpy para luego hacer el gráfico
+             
+    return w, iterations, vector_puntos
+~~~
+En cada iteración actualizamos los valores de w restándoles a los de la iteración anterior el producto de la inversa de la matriz Hessiana de f evaluada en w por el gradiente evaluado en w. Este algoritmo se puede implementar con una tasa de aprendizaje eta, como he hecho yo y como se muestra en la fotografía del método ($\gamma$).
+
+En primer lugar, para ver el comportamiento del método he probado con distintos valores de eta (0.01,0.1 y 1) empezando en el mismo punto que el ejercicio 1.3 (el (-1,1)), y estos han sido los resultados:
+
+
+
+![Comparativa de etas](NewtonComparativa.png)
+![Comparativa de etas](Ejercicio1.3a.png)
+-----------------------------------------------------------------
+
+
+Como podemos ver aquí se presenta la primera gran diferencia con respecto al método del gradiente descendente, en este caso la elección del eta no nos hace diverger u oscilar si el eta es muy elevado, simplemente nos hace converger más deprisa si la tasa de aprendizaje es elevada. 
+
+Como segunda observación, vemos que el método no converge a 0 como en el caso del gradiente descendente para eta=0.01, sino que converge a 3.1079800610352017, y es que este método, por la manera en que funciona, puede quedar atrapado en "Puntos de silla" (superficies de pendiente 0 que no son extremos) cosa que en el gradiente Descendente no es tan frecuente, y dado que está función presenta muchos puntos de silla tiene un funcionamiento peor el algoritmo de Newton.
+
+A partir de ahora usaremos eta=1 para el Método de Newton,ya que como hemos visto antes, esto solo acelera la convergencia y los datos serán más reveladores.
+
+Hacemos ahora el experimento variando el punto de inicio y con 100 iteraciones:
+
+![Gradiente Descendente](Ejercicio1.3b.png)
+--------------------------------------------------
+|Newton|
+|---|
+|![](Newton1.png)|
+|![](Newton2.png)|
+|![](Newton3.png)|
+|![](Newton4.png)|
+|![](Newton5.png)|
+
+
+Como podemos observar en los gráficos, la principal diferencia está en que el método de Newton no disminuye el valor de la función en ningun caso, puede ciclar (como el caso del punto (2.1,-2.1)), puede converger a puntos de silla (como en el caso del punto (3,3)), puede no converger (como el caso del punto (-0.5,0.5)) o puede permanecer constante (como en el caso del punto (-2,2))y es que para que el método de Newton sea eficaz (que lo puede ser, y en ocasiones mejor que el gradiente descendente), la función que estamos considerando debe ser estrictamente convexa o al menos convexa (cosa que habría que estudiar en este caso, pero que gráficamente no parece que no lo sea debido a esos "Hoyos" que ya comentábamos ) y tomar un valor x0 lo suficientemente cercano al mínimo como para asegurar la convergencia. 
+
+Luego como conclusión podemos observar que ,a diferencia del método del Gradiente Descendente el eta elegido, no parece influir en los resultados, pero en cambio ambos algoritmos mantienen una fuerte dependencia del punto incial tomado, por lo que seguiría siendo necesario un estudio que qué punto inicial tomar para lograr alcanzar un mínimo de la función. Y como comentario, se ha podido ver que este algoritmo puede parecer "peor" que el Gradiente Descendente, pero esto no es cierto, depende mucho del caso y la función, y este algoritmo en funciones convexas puede ser realmente rápido (más que el gradiente descendente) y en pocas iteraciones alcanzar el mínimo global de la función.
+
+Finalmente mostramos los resultados numéricos obtenidos por el algoritmo de Newton en la siguiente tabla:
+
+|Punto inicial| w obtenido | f(w)|
+|--| -- | --|
+|( -0.5 , -0.5 )|( -89088.47344610887 ,  91767.07849540607 )|24778059013.443085|
+|( 1 , 1 )|( 1.067372638667162 ,  0.9100709200235607 )|11.344755748360596|
+|( 2.1 , -2.1 )|( 3.82834646986596 ,  -3.6596191941880383 )|96.54631298064648|
+|( -3 , 3 )|( -3.05397555493864 ,  3.028461459660191 )|3.1079800610352026|
+|( -2 , 2 )|( -2.0 ,  2.0 )|-4.799231304517944e-31|
+
+Como último comentario, todo el código para representar las gráficas es reutilizado de ejercicios anteriores, y por lo tanto ya ha sido explicado.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
