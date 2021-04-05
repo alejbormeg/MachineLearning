@@ -10,6 +10,8 @@ documentclass: report
 
 #### 1. Implementar el algoritmo de gradiente descendente
 
+El Gradiente descendente es un método matemático empleado para encontrar el mínimo (global si la función es convexa y local en otro caso) de una función determinada teniendo en cuenta el gradiente. El gradiente es el vector de las primeras derivadas de la función con respecto a cada una de sus variables y dicho vector apunta en cada punto al máximo de la función, luego en nuestro método en cada paso decidimos ir en dirección contraria a la que apunta el gradiente para así tratar de llegar a un mínimo de la función. 
+
 El algoritmo implementado es el siguiente, que puede verse en el fichero template_trabajo1.py 
 
 ~~~python
@@ -213,7 +215,9 @@ Y ahora si que podemos ver una gran diferencia entre la elección de un $\eta$ u
 
 En cambio, con el valor 0.01, al ser los pasos en cada iteracion menores, se asegura una mejor convergencia al mínimo, y una vez alcanzado dicho mínimo, la función permanece constante (pues el gradiente es prácticamente 0 y en cada iteración los valores de los pesos no se modifican a penas).
 
-Por lo que dicho esto parece mucho más razonable utilizar $\eta=0.01$ frente al $\eta=0.1$
+En resumen un $\eta$ menor nos asegura la convergencia, aunque muy lentamente y un $\eta$ mayor aunque avanza con más rapidez el algoritmo puede no converger, por ello la elección de un eta adecuado es importante.
+
+Por lo que dicho esto, parece mucho más razonable utilizar $\eta=0.01$ que $\eta=0.1$
 
 #### b) Obtener el valor mínimo y los valores de las variables $(x,y)$ en donde se alcanzan cuando el punto de inicio se fija en: $(-0.5,-0.5), (1,1), (2.1,-2.1), (-3,3), (-2,2)$. Generar una tabla con los valores obtenidos. Comentar la dependencia del punto inicial.
 
@@ -302,7 +306,7 @@ por otro lado, para la última gráfica he usado el mismo código del ejercicio 
 
 #### 4.¿Cuál sería su conclusión sobre la verdadera dificultad de encontrar el mínimo global de una función arbitraria?
 
-Por todo lo visto en apartados anteriores, la dificultad para encontrar el mínimo global de una función arbitraria, a mi modo de entender, reside en la correcta elección del punto inicial donde lanzar el algoritmo y de el $\eta$ adecuado, pues como vimos en el ejercicio 1.2 un $\eta$ demasiado grande puede hacer que nuestro algoritmo no converga al mínimo, y como vimos en el ejercicio 1.3, con un $\eta$ adecuado, si no tomamos un buen punto de partida, nuestro algoritmo puede no converger al mínimo global y quedar atrapado en mínimos locales. Por lo tanto a mi parecer, dada una función arbitraria $f(x,y)$ sería una buena práctica, tomar un conjunto arbitrario de puntos iniciales y un conjunto arbitrario de posibles valores de $\eta$ y llevar a cabo un estudio de con qué punto inicial y con qué valor de $\eta$ se alcanza el "mejor" mínimo de la función.
+Por todo lo visto en apartados anteriores, la dificultad para encontrar el mínimo global de una función arbitraria, a mi modo de entender, reside en la correcta elección del punto inicial donde lanzar el algoritmo y de el $\eta$ adecuado, pues como vimos en el ejercicio 1.2 un $\eta$ demasiado grande puede hacer que nuestro algoritmo no converga al mínimo, y como vimos en el ejercicio 1.3, con un $\eta$ adecuado, si no tomamos un buen punto de partida, nuestro algoritmo puede no converger al mínimo global y quedar atrapado en mínimos locales. Por lo tanto a mi parecer, dada una función arbitraria $f(x,y)$ (que no sea convexa) sería una buena práctica, tomar un conjunto arbitrario de puntos iniciales y un conjunto arbitrario de posibles valores de $\eta$ y llevar a cabo un estudio de con qué punto inicial y con qué valor de $\eta$ se alcanza el "mejor" mínimo de la función.
 
 
 
@@ -322,7 +326,7 @@ En primer lugar, vamos a implementar el algoritmo de la pseudoinversa, dicho alg
 ---------------------------------------------------------
 
 
-Que surge de la problemática de que no se conoce a priori que la matriz X sea invertible, por lo que para despejar el vector de pesos w de la ecuación se recurre a la pseudoinversa.
+Que surge de la problemática de que no se conoce a priori que la matriz X sea invertible, por lo que para despejar el vector de pesos w de la ecuación se recurre a la pseudoinversa, un producto matricial utilizando los valores singulares de la matriz X que sí sabemos que es siempre invertible.
 
 
 ~~~py
@@ -445,7 +449,7 @@ Eout:  0.13095383720052559
 
 Como podemos ver los resultados son muy similares para los dos algoritmos y la recta de regresión separa bastante bien los datos del training set cometiendo un error muy bajo. No obstante, a pesar de que el ajuste empeora en el test set, el error cometido sigue siendo bajo, y se podría decir que separa adecuadamente las fotografías de números 1 y 5.
 
-Por último, para el código que he empleado para representar las gráficas me ha ayudado una compañera de clase, Celia Arias Martínez. En primer lugar capturo las filas de X con etiqueta -1 y luego las que tienen etiqueta 1, y las represento en un scatter plot, después de la fórmula $h(x)=w_0 + w_1*x_1 + w_2*x_2$ despejo una de las dos incógnitas (en mi caso x2) y expreso la función de la siguiente forma $x_2=\frac {w_0+w_1*x_1}{w_2}$ y simplemente tomo 100 valores equiespaciados entre 0 y 1 y los evalúo en dicha función y con plt.plot() la dibujo en el gráfico, pasando como parámetros los puntos donde evalúo la función, la función dónde se evalúan, el color de la recta (rojo en mi caso) y la etiqueta. Finalmente le pongo un título al gráfico con plt.Title, le pongo nombre a los ejes con plt.xlabel y plt.ylabel, con plt.legend() creo la leyenda y muestro el gráfico con plt.show().
+Por último, para el código que he empleado para representar las gráficas me ha ayudado una compañera de clase, Celia Arias Martínez. En primer lugar capturo las filas de X con etiqueta -1 y luego las que tienen etiqueta 1, y las represento en un scatter plot, después de la fórmula $h(x)=w_0 + w_1*x_1 + w_2*x_2$ despejo una de las dos incógnitas (en mi caso x2) y expreso la función de la siguiente forma $x_2=\frac {w_0+w_1*x_1}{w_2}$ tomando $x_1$ como un parámetro y simplemente eligiendo 100 valores equiespaciados entre 0 y 1 y sustituyéndolos por $x_1$ en la función, usando plt.plot() la dibujo en el gráfico, pasando como parámetros los puntos donde evalúo la función, la función dónde se evalúan, el color de la recta (rojo en mi caso) y la etiqueta. Finalmente le pongo un título al gráfico con plt.Title, le pongo nombre a los ejes con plt.xlabel y plt.ylabel, con plt.legend() creo la leyenda y muestro el gráfico con plt.show().
 
 El código con el que se han generado es el siguiente:
 
@@ -584,7 +588,7 @@ El código básicamente es un bucle for realizando 1000 veces los pasos de a)-c)
 
 #### e) Valore que tan bueno considera que es el ajuste con este modelo lineal a la vista de los valores medios de Ein y Eout.
 
-A la vista de los resultados obtenidos, el modelo no se ajusta bien a los datos obteniendo errores altos en el Training set y en el test set, de hecho se obtiene un error elevado a la hora de aproximar los datos, de hecho podría tratarse de un caso de "underfitting", ya que el modelo no consigue captar las variaciones de los datos, por eso  considero que se deberían añadir características no lineales para obtener un mejor modelo.
+A la vista de los resultados obtenidos, el modelo no se ajusta bien a los datos obteniendo errores altos en el Training set y en el test set, de hecho se obtiene un error elevado a la hora de aproximar los datos y podría tratarse de un caso de "underfitting", ya que el modelo no consigue captar las variaciones de los datos, por eso  considero que se deberían añadir características no lineales para obtener un mejor modelo.
 
 #### Repetir el mismo experimento anterior pero usando características no lineales. Ahora usaremos el siguiente vector de características: $\Phi_2(x)=(1,x_1,x_2,x_1x_2,x_1^2,x_2^2)$. Ajustar el nuevo modelo de regresión lineal y calcular el nuevo vector de pesos w. Calcular los errores promedio de Ein y Eout.
 
@@ -793,9 +797,9 @@ Hacemos ahora el experimento variando el punto de inicio y con 100 iteraciones:
 |![](Newton5.png)|
 
 
-Como podemos observar en los gráficos, la principal diferencia está en que el método de Newton no disminuye el valor de la función en ningun caso, puede ciclar (como el caso del punto (2.1,-2.1)), puede converger a puntos de silla (como en el caso del punto (3,3)), puede no converger (como el caso del punto (-0.5,0.5)) o puede permanecer constante (como en el caso del punto (-2,2))y es que para que el método de Newton sea eficaz (que lo puede ser, y en ocasiones mejor que el gradiente descendente), la función que estamos considerando debe ser estrictamente convexa o al menos convexa (cosa que habría que estudiar en este caso, pero que gráficamente no parece que no lo sea debido a esos "Hoyos" que ya comentábamos ) y tomar un valor x0 lo suficientemente cercano al mínimo como para asegurar la convergencia. 
+Como podemos observar en los gráficos, la principal diferencia está en que el método de Newton no disminuye el valor de la función en ningún caso, puede ciclar (como el caso del punto (2.1,-2.1)), puede converger a mínimos locales o puntos de silla (como en el caso del punto (3,3)), puede no converger (como el caso del punto (-0.5,0.5)) o puede permanecer constante (como en el caso del punto (-2,2))y es que para que el método de Newton sea eficaz (que lo puede ser, y en ocasiones mejor que el gradiente descendente), la función que estamos considerando debe ser estrictamente convexa o al menos convexa (y la función que estamos considerando no lo es, pues presenta muchos 'picos' u 'hoyos' como habíamos comentado ya, por eso el método no funciona correctamente) y tomar un valor x0 lo suficientemente cercano al mínimo como para asegurar la convergencia. 
 
-Luego como conclusión podemos observar que ,a diferencia del método del Gradiente Descendente el eta elegido, no parece influir en los resultados, pero en cambio ambos algoritmos mantienen una fuerte dependencia del punto incial tomado, por lo que seguiría siendo necesario un estudio que qué punto inicial tomar para lograr alcanzar un mínimo de la función. Y como comentario, se ha podido ver que este algoritmo puede parecer "peor" que el Gradiente Descendente, pero esto no es cierto, depende mucho del caso y la función, y este algoritmo en funciones convexas puede ser realmente rápido (más que el gradiente descendente) y en pocas iteraciones alcanzar el mínimo global de la función.
+Luego como conclusión podemos observar que ,a diferencia del método del Gradiente Descendente el eta elegido, no parece influir en los resultados, pero en cambio ambos algoritmos mantienen una fuerte dependencia del punto incial tomado, por lo que seguiría siendo necesario un estudio de qué punto inicial tomar para lograr alcanzar un mínimo de la función. Por otra parte, este método funciona correctamente con funciones convexas o estrictamente convexas, por lo que está un poco limitado ya que este conjunto de funciones es muy pequeño. Y como comentario, se ha podido ver que este algoritmo puede parecer "peor" que el Gradiente Descendente, pero esto no es cierto, depende mucho del caso y la función, y este algoritmo en funciones convexas puede ser realmente rápido (más que el gradiente descendente) y en pocas iteraciones alcanzar el mínimo global de la función.
 
 Finalmente mostramos los resultados numéricos obtenidos por el algoritmo de Newton en la siguiente tabla:
 
