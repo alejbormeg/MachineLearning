@@ -43,7 +43,6 @@ def simula_recta(intervalo):
 # EJERCICIO 1.1: Dibujar una gráfica con la nube de puntos de salida correspondiente
 
 x = simula_unif(50, 2, [-50,50])
-#CODIGO DEL ESTUDIANTE
 # Dibujo el Scatter Plot de los puntos generados
 plt.scatter(x[:,0],x[:,1], c='blue')
 plt.title('Ejercicio1.1 Puntos generados con simula uniformemente')
@@ -51,14 +50,14 @@ plt.xlabel('x1')
 plt.ylabel('x2')
 plt.show()
 
+input("\n--- Pulsar tecla para continuar ---\n")
+
 x = simula_gaus(50, 2, np.array([5,7]))
-#CODIGO DEL ESTUDIANTE
 # Dibujo el Scatter Plot de los puntos generados
 plt.scatter(x[:,0],x[:,1], c='red')
 plt.title('Ejercicio1.1 Puntos generados con Distribución Gaussiana')
 plt.xlabel('x1')
 plt.ylabel('x2')
-
 plt.show()
 
 input("\n--- Pulsar tecla para continuar ---\n")
@@ -80,7 +79,6 @@ def signo(x):
 def f(x, y, a, b):
 	return signo(y - a*x - b)
 
-#CODIGO DEL ESTUDIANTE
 #1.2 a) 
 x = simula_unif(100, 2, [-50,50])
 # Dibujo el Scatter Plot de los puntos generados
@@ -90,9 +88,12 @@ plt.xlabel('x1')
 plt.ylabel('x2')
 plt.show()
 
+input("\n--- Pulsar tecla para continuar ---\n")
+
 #Calculamos los coeficientes de la recta
 a,b=simula_recta([-50,50])
 
+print("Los coeficientes a y b: ", a, b)
 #Generamos las etiquetas
 y=[]
 
@@ -100,6 +101,7 @@ for i in x :
     y.append(f(i[0],i[1],a,b))
 
 y=np.array(y)
+labels=y.copy() ####### PARA EJERCICIO 2
 y0 = np.where(y == -1) #capturo los índices de los elementos con -1
 y1 = np.where(y == 1) #capturo los índices de los elementos con 1
 #x_2 contiene dos arrays, uno en cada componente, el primero tiene los valores de x con etiqueta -1 y la segunda los de etiqueta 1
@@ -247,7 +249,7 @@ input("\n--- Pulsar tecla para continuar ---\n")
 def f2(x):
     y=[]
     for i in x:
-        y.append(0.5*(i[0]-10)**2 + (i[1]-20)**2-400)
+        y.append(0.5*(i[0]+10)**2 + (i[1]-20)**2-400)
     
     return np.asarray(y)
 
@@ -324,28 +326,130 @@ for i in imagenes:
 print("Mostramos la accuracy del método f4")
 print ("ACCURACY= ", (TN+TP)/100.0)
 input("\n--- Pulsar tecla para continuar ---\n")
+###############################################################################
+###############################################################################
+###############################################################################
 
-###############################################################################
-###############################################################################
-###############################################################################
-'''
 # EJERCICIO 2.1: ALGORITMO PERCEPTRON
 
 def ajusta_PLA(datos, label, max_iter, vini):
     #CODIGO DEL ESTUDIANTE
+    mejora=True
+    it=0
+    w=np.array(vini)
+    w=w.reshape(-1,1) #Lo transformo en un vector columna
     
-    return ?  
+    while (mejora and it<max_iter): # 
+        mejora=False
+        it+=1
+        for i in range(len(datos)):
+            valor=datos[i,:].dot(w)
+            sign=signo(valor.item())
+
+            if sign!=label[i]:
+                actualiza=label[i]*datos[i,:]
+                actualiza=np.array(actualiza)
+                actualiza=actualiza.reshape(-1,1)
+                w=w+actualiza
+                mejora=True
+    
+            
+        
+                
+    return w, it  
 
 #CODIGO DEL ESTUDIANTE
+vini=[0.0,0.0,0.0]
+unos=np.ones((x.shape[0],1))
+x=np.concatenate((unos,x),axis=1)
+w, iteraciones=ajusta_PLA(x,labels,1000,vini)
+print('Vector obtenido: ', w)
+y0 = np.where(labels == -1) #capturo los índices de los elementos con -1
+y1 = np.where(labels == 1) #capturo los índices de los elementos con 1
+#x_2 contiene dos arrays, uno en cada componente, el primero tiene los valores de x con etiqueta -1 y la segunda los de etiqueta 1
+x_2 = np.array([x[y0[0]],x[y1[0]]])
+plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'blue', label = '-1') #Dibujamos los puntos con etiqueta 1
+plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'orange', label = '1')#Dibujamos los de etiqueta -1
 
+#Calculamos las imagenes de los puntos (sin aplicar la función signo) y así dibujar la recta de regresión
+imagenes=[]
+
+for i in x :
+    imagenes.append((-w[1]*i[1]-w[0])/w[2]) #y=(-ax-c)/b
+     
+plt.plot( x[:,1], imagenes, c = 'red', label='Recta') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+plt.ylim(-50,50)
+plt.legend();
+plt.title("Ejercicio PERCEPTRON")
+plt.xlabel('x1')
+plt.ylabel('x2')
+plt.figure()
+plt.show()
+input("\n--- Pulsar tecla para continuar ---\n")
+print('Valor medio de iteraciones necesario para converger un vector de 0: ', iteraciones)
 # Random initializations
 iterations = []
+#np.random.seed(0)
+media=0
 for i in range(0,10):
     #CODIGO DEL ESTUDIANTE
-    
-print('Valor medio de iteraciones necesario para converger: {}'.format(np.mean(np.asarray(iterations))))
+    vini=np.random.rand(3)
+    w, iteraciones=ajusta_PLA(x,labels,1000,vini)
+    media+=iteraciones
+    print('Iteracion: ',i)
+    print('vector inicial= ',vini)
+    print('vector obtenido= ', w)
+    print('Iteraciones: ', iteraciones)
+    print('\n\n')
+
+print('Valor medio de iteraciones necesario para converger con 10 vectores random: ', media/10.0)
 
 input("\n--- Pulsar tecla para continuar ---\n")
+
+print('Mismo experimento pero con la muestra con ruido')
+vini=[0.0,0.0,0.0]
+w, iteraciones=ajusta_PLA(x,y,1000,vini) #esta vez usamos el vector y de etiquetas alteradas
+print('Vector obtenido: ', w)
+y0 = np.where(y == -1) #capturo los índices de los elementos con -1
+y1 = np.where(y == 1) #capturo los índices de los elementos con 1
+#x_2 contiene dos arrays, uno en cada componente, el primero tiene los valores de x con etiqueta -1 y la segunda los de etiqueta 1
+x_2 = np.array([x[y0[0]],x[y1[0]]])
+plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'blue', label = '-1') #Dibujamos los puntos con etiqueta 1
+plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'orange', label = '1')#Dibujamos los de etiqueta -1
+
+#Calculamos las imagenes de los puntos (sin aplicar la función signo) y así dibujar la recta de regresión
+imagenes=[]
+
+for i in x :
+    imagenes.append((-w[1]*i[1]-w[0])/w[2]) #y=(-ax-c)/b
+     
+plt.plot( x[:,1], imagenes, c = 'red', label='Recta') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+plt.ylim(-50,50)
+plt.legend();
+plt.title("Ejercicio PERCEPTRON")
+plt.xlabel('x1')
+plt.ylabel('x2')
+plt.figure()
+plt.show()
+input("\n--- Pulsar tecla para continuar ---\n")
+print('Valor medio de iteraciones necesario para converger un vector de 0: ', iteraciones)
+# Random initializations
+iterations = []
+#np.random.seed(0)
+media=0
+for i in range(0,10):
+    #CODIGO DEL ESTUDIANTE
+    vini=np.random.rand(3)
+    w, iteraciones=ajusta_PLA(x,y,1000,vini)
+    media+=iteraciones
+    print('Iteracion: ',i)
+    print('vector inicial= ',vini)
+    print('vector obtenido= ', w)
+    print('Iteraciones: ', iteraciones)
+    print('\n\n')
+
+print('Valor medio de iteraciones necesario para converger con 10 vectores random: ', media/10.0)
+
 
 # Ahora con los datos del ejercicio 1.2.b
 
@@ -353,11 +457,10 @@ input("\n--- Pulsar tecla para continuar ---\n")
 
 
 input("\n--- Pulsar tecla para continuar ---\n")
-
 ###############################################################################
 ###############################################################################
 ###############################################################################
-
+'''
 # EJERCICIO 3: REGRESIÓN LOGÍSTICA CON STOCHASTIC GRADIENT DESCENT
 
 def sgdRL(?):
