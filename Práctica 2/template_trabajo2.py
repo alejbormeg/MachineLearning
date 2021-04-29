@@ -333,7 +333,25 @@ input("\n--- Pulsar tecla para continuar ---\n")
 # EJERCICIO 2.1: ALGORITMO PERCEPTRON
 
 def ajusta_PLA(datos, label, max_iter, vini):
-    #CODIGO DEL ESTUDIANTE
+    '''
+    Algoritmo Perceptrón
+    Parameters
+    ----------
+    datos : Matriz de datos
+    
+    label : Vector de etiquetas
+    
+    max_iter : número máximo de iteraciones
+    
+    vini : vector inicial de pesos
+
+    Returns
+    -------
+    w : vector de pesos.
+    
+    it : número de iteraciones empleadas
+
+    '''
     mejora=True
     it=0
     w=np.array(vini)
@@ -358,7 +376,6 @@ def ajusta_PLA(datos, label, max_iter, vini):
                 
     return w, it  
 
-#CODIGO DEL ESTUDIANTE
 vini=[0.0,0.0,0.0]
 unos=np.ones((x.shape[0],1))
 x=np.concatenate((unos,x),axis=1)
@@ -377,13 +394,23 @@ imagenes=[]
 for i in x :
     imagenes.append((-w[1]*i[1]-w[0])/w[2]) #y=(-ax-c)/b
      
-plt.plot( x[:,1], imagenes, c = 'red', label='Recta') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+plt.plot( x[:,1], imagenes, c = 'black', label='g(x,y)') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
 plt.ylim(-50,50)
+plt.legend();
+
+#Dibujamos recta clasificadora
+imagenes=[]
+
+for i in x :
+    imagenes.append(a*i[1]+b)
+    
+plt.plot( x[:,1], imagenes, c = 'red', label='f(x,y)') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
 plt.legend();
 plt.title("Ejercicio PERCEPTRON")
 plt.xlabel('x1')
 plt.ylabel('x2')
 plt.figure()
+
 plt.show()
 input("\n--- Pulsar tecla para continuar ---\n")
 print('Valor medio de iteraciones necesario para converger un vector de 0: ', iteraciones)
@@ -423,16 +450,63 @@ imagenes=[]
 for i in x :
     imagenes.append((-w[1]*i[1]-w[0])/w[2]) #y=(-ax-c)/b
      
-plt.plot( x[:,1], imagenes, c = 'red', label='Recta') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+plt.plot( x[:,1], imagenes, c = 'black', label='g(x,y)') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
 plt.ylim(-50,50)
 plt.legend();
-plt.title("Ejercicio PERCEPTRON")
+
+
+#Representamos el clasificador
+imagenes=[]
+
+for i in x :
+    imagenes.append(a*i[1]+b)
+    
+plt.plot( x[:,1], imagenes, c = 'red', label='f(x,y)') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+plt.legend();
+plt.title("Ejercicio PERCEPTRON apartado b) 1000 iteraciones")
 plt.xlabel('x1')
 plt.ylabel('x2')
 plt.figure()
 plt.show()
-input("\n--- Pulsar tecla para continuar ---\n")
+
 print('Valor medio de iteraciones necesario para converger un vector de 0: ', iteraciones)
+
+vini=[0.0,0.0,0.0]
+w, iteraciones=ajusta_PLA(x,y,3000,vini) #Experimento con 3000 iteraciones
+print('Vector obtenido: ', w)
+y0 = np.where(y == -1) #capturo los índices de los elementos con -1
+y1 = np.where(y == 1) #capturo los índices de los elementos con 1
+#x_2 contiene dos arrays, uno en cada componente, el primero tiene los valores de x con etiqueta -1 y la segunda los de etiqueta 1
+x_2 = np.array([x[y0[0]],x[y1[0]]])
+plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'blue', label = '-1') #Dibujamos los puntos con etiqueta 1
+plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'orange', label = '1')#Dibujamos los de etiqueta -1
+
+#Calculamos las imagenes de los puntos (sin aplicar la función signo) y así dibujar la recta de regresión
+imagenes=[]
+
+for i in x :
+    imagenes.append((-w[1]*i[1]-w[0])/w[2]) #y=(-ax-c)/b
+     
+plt.plot( x[:,1], imagenes, c = 'black', label='g(x,y)') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+plt.ylim(-50,50)
+plt.legend();
+
+
+#Representamos el clasificador
+imagenes=[]
+
+for i in x :
+    imagenes.append(a*i[1]+b)
+    
+plt.plot( x[:,1], imagenes, c = 'red', label='f(x,y)') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+plt.legend();
+plt.title("Ejercicio PERCEPTRON apartado b) 3000 iteraciones")
+plt.xlabel('x1')
+plt.ylabel('x2')
+plt.figure()
+plt.show()
+
+input("\n--- Pulsar tecla para continuar ---\n")
 # Random initializations
 iterations = []
 #np.random.seed(0)
@@ -451,36 +525,255 @@ for i in range(0,10):
 print('Valor medio de iteraciones necesario para converger con 10 vectores random: ', media/10.0)
 
 
-# Ahora con los datos del ejercicio 1.2.b
-
-#CODIGO DEL ESTUDIANTE
-
-
 input("\n--- Pulsar tecla para continuar ---\n")
 ###############################################################################
 ###############################################################################
 ###############################################################################
-'''
+
 # EJERCICIO 3: REGRESIÓN LOGÍSTICA CON STOCHASTIC GRADIENT DESCENT
+def err(x, y, w):
+    '''
+    Calcula el error en Regresión Logística
+    Parameters
+    ----------
+    X : TYPE
+        DESCRIPTION.
+    y : TYPE
+        DESCRIPTION.
+    w : TYPE
+        DESCRIPTION.
 
-def sgdRL(?):
-    #CODIGO DEL ESTUDIANTE
+    '''
+    y=y.reshape(-1,1)
+    return np.mean(np.log(1 + np.exp(-y * x.dot(w))))
 
+
+def gradiente(x,y,w): #w e y deben ser vectores columna esta función calcula el gradiente para regresión logística
+    '''
+    Calcula el gradiente en el caso N=1 
+    Parameters
+    ----------
+    x : Matriz de datos
+    
+    y : vector de etiqyetas
+    
+    w : vector de pesos
+
+    '''
+    return -y * np.transpose(x) / (1 + np.exp(y * x.dot(w)))
+
+    
+def sgdRL(x,y,eta, tolerancia,tam_Minibatch=1):
+    '''
+    Algoritmo Gradiente Descendiente Estocástico aplicado a Regresión Logística
+    
+    Parameters
+    ----------
+    x : Matriz de datos
+    
+    y : vector de etiqyetas
+    
+    eta : learning rate
+    
+    tolerancia : tolerancia tal que una vez superada la función acaba
+    
+    tam_Minibatch : Tamaño del minibatch, en este caso usamos 1 por defecto
+
+    Returns
+    -------
+    w : TYPE
+        DESCRIPTION.
+
+    '''
+    y=y.reshape(-1,1) #transformamos y en un vector columna
+    N=len(y) #Numero de filas de X e y
+    iterations=0
+    dif=1000.0
+    w=np.zeros((x.shape[1],1)) #Inicializo w a un vector columna de ceros
+    w=w.reshape(-1,1)
+    xy=np.c_[x.copy(),y.copy()] #Esta función de numpy concatena dos matrices por columnas cuando el segundo parámetro es un vector columna
+
+    while dif>tolerancia:
+        w_anterior=w.copy()   #Guardo el vector de pesos de la iteración anterior
+        np.random.shuffle(xy) #Mezclo los datos 
+
+        for i in range(0,N,tam_Minibatch): #Recorro lo minibatches
+        #Para cada minibatch actualizao el vector de pesos w con los datos del minibatch
+            parada= i + tam_Minibatch
+            x_mini,y_mini=xy[i:parada, :-1], xy[i:parada,-1:]
+            grad=gradiente(x_mini,y_mini,w)
+            w=w - eta*grad
+            
+        #Al acabar la actualización de los w incremento el número de iteraciones del bucle while
+        iterations=iterations + 1
+        dif= np.linalg.norm(w_anterior - w)
+        
     return w
 
 
 
-#CODIGO DEL ESTUDIANTE
+###############################################################################################################################################################
+#EXPLICACIÓN DEL EXPERIMENTO
+a,b=simula_recta([0,2])
+print("Los coeficientes a y b: ", a, b)
 
+x = simula_unif(100, 2, [0,2])
+#Generamos las etiquetas
+y=[]
+
+for i in x :
+    y.append(f(i[0],i[1],a,b))
+
+
+y=np.array(y)
+#Añadimos la primera columna de unos
+y0 = np.where(y == -1) #capturo los índices de los elementos con -1
+y1 = np.where(y == 1) #capturo los índices de los elementos con 1
+#x_2 contiene dos arrays, uno en cada componente, el primero tiene los valores de x con etiqueta -1 y la segunda los de etiqueta 1
+x_2 = np.array([x[y0[0]],x[y1[0]]])
+plt.scatter(x_2[0][:, 0], x_2[0][:, 1],  c = 'blue', label = '-1') #Dibujamos los puntos con etiqueta 1
+plt.scatter(x_2[1][:, 0], x_2[1][:, 1],  c = 'orange', label = '1')#Dibujamos los de etiqueta -1
+
+#Calculamos las imagenes de los puntos (sin aplicar la función signo) y así dibujar la recta de regresión
+imagenes=[]
+
+for i in x :
+    imagenes.append(a*i[0]+b)
+    
+plt.plot( x[:,0], imagenes, c = 'red', label='Recta') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+plt.legend();
+plt.title("Ejercicio 2.2 Recta usada para clasificar")
+plt.xlabel('x1')
+plt.ylabel('x2')
+plt.figure()
+plt.show()
+
+unos=np.ones((x.shape[0],1))
+x=np.concatenate((unos,x),axis=1)
+
+w=sgdRL(x,y,0.01,0.01)
+print('Coeficientes obtenidos: ',w)
+y0 = np.where(y == -1) #capturo los índices de los elementos con -1
+y1 = np.where(y == 1) #capturo los índices de los elementos con 1
+#x_2 contiene dos arrays, uno en cada componente, el primero tiene los valores de x con etiqueta -1 y la segunda los de etiqueta 1
+x_2 = np.array([x[y0[0]],x[y1[0]]])
+plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'blue', label = '-1') #Dibujamos los puntos con etiqueta 1
+plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'orange', label = '1')#Dibujamos los de etiqueta -1
+
+#Calculamos las imagenes de los puntos (sin aplicar la función signo) y así dibujar la recta de regresión
+imagenes=[]
+
+for i in x :
+    imagenes.append((-w[1]*i[1]-w[0])/w[2]) #y=(-ax-c)/b
+     
+plt.plot( x[:,1], imagenes, c = 'red', label='Recta') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+plt.ylim(0,2)
+plt.legend();
+plt.title("Recta obtenida usando Regresión Logística")
+plt.xlabel('x1')
+plt.ylabel('x2')
+plt.figure()
+plt.show()
+
+Ein=err(x,y,w)
+print ('\n\nCalculamos el Error en la muestra (Ein): ', Ein)
+#Probamos el modelo en otra muestra de 1000 datos
+x = simula_unif(1000, 2, [0,2])
+#Generamos las etiquetas
+y=[]
+
+for i in x :
+    y.append(f(i[0],i[1],a,b))
+
+
+y=np.array(y)
+#Añadimos la primera columna de unos
+y0 = np.where(y == -1) #capturo los índices de los elementos con -1
+y1 = np.where(y == 1) #capturo los índices de los elementos con 1
+#x_2 contiene dos arrays, uno en cada componente, el primero tiene los valores de x con etiqueta -1 y la segunda los de etiqueta 1
+x_2 = np.array([x[y0[0]],x[y1[0]]])
+plt.scatter(x_2[0][:, 0], x_2[0][:, 1],  c = 'blue', label = '-1') #Dibujamos los puntos con etiqueta 1
+plt.scatter(x_2[1][:, 0], x_2[1][:, 1],  c = 'orange', label = '1')#Dibujamos los de etiqueta -1
+
+#Calculamos las imagenes de los puntos (sin aplicar la función signo) y así dibujar la recta de regresión
+imagenes=[]
+
+for i in x :
+    imagenes.append(a*i[0]+b)
+    
+plt.plot( x[:,0], imagenes, c = 'red', label='Recta') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+plt.legend();
+plt.title("Muestra de 1000 datos")
+plt.xlabel('x1')
+plt.ylabel('x2')
+plt.figure()
+plt.show()
+
+#Ahora con la recta obtenida por Logistic Regression
+plt.scatter(x_2[0][:, 0], x_2[0][:, 1],  c = 'blue', label = '-1') #Dibujamos los puntos con etiqueta 1
+plt.scatter(x_2[1][:, 0], x_2[1][:, 1],  c = 'orange', label = '1')#Dibujamos los de etiqueta -1
+unos=np.ones((x.shape[0],1))
+x=np.concatenate((unos,x),axis=1)
+imagenes=[]
+
+for i in x :
+    imagenes.append((-w[1]*i[1]-w[0])/w[2]) #y=(-ax-c)/b
+     
+plt.plot( x[:,1], imagenes, c = 'red', label='Recta') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+plt.ylim(0,2)
+plt.legend();
+plt.title("Recta obtenida usando Regresión Logística")
+plt.xlabel('x1')
+plt.ylabel('x2')
+plt.figure()
+plt.show()
+
+Eout=err(x,y,w)
+print ('\n\nCalculamos el Error fuera de la muestra (Eout): ', Eout)
+
+
+
+###############################################################################################################################################################
 input("\n--- Pulsar tecla para continuar ---\n")
     
+print ('\n\n\n COMIENZA EL EXPERIMENTO \n\n\n')
+
+for i in range(100):
+    print('Iteracion: ',i)
+    x = simula_unif(100, 2, [0,2]) #obtenemos training set
+    #Generamos las etiquetas
+    y=[]
+
+    for i in x :
+        y.append(f(i[0],i[1],a,b))
 
 
-# Usar la muestra de datos etiquetada para encontrar nuestra solución g y estimar Eout
-# usando para ello un número suficientemente grande de nuevas muestras (>999).
+    y=np.array(y)
+
+    #Preparamos Regresión Logística
+    unos=np.ones((x.shape[0],1))
+    x=np.concatenate((unos,x),axis=1) #Añadimos columna de unos al principio de x
+
+    w=sgdRL(x,y,0.01,0.01) #Ejecutamos el algoritmo con un learning rate de 0.01 y una tolerancia de 0.01
+    Ein+=err(x,y,w) #Calculamos el Error interno
+    #Probamos el modelo en otra muestra de 1000 datos (Test Set)
+    x = simula_unif(1000, 2, [0,2])
+    #Generamos las etiquetas
+    y=[]
+
+    for i in x :
+        y.append(f(i[0],i[1],a,b))
 
 
-#CODIGO DEL ESTUDIANTE
+    y=np.array(y)    
+    unos=np.ones((x.shape[0],1))
+    x=np.concatenate((unos,x),axis=1)
+    Eout+=err(x,y,w)
+
+
+print('\n\n ---------------- TRAS 100 ITERACIONES ----------------')
+print('Ein medio: ', Ein/100.0)
+print('Eout medio: ', Eout/100.0)
 
 
 input("\n--- Pulsar tecla para continuar ---\n")
@@ -490,7 +783,7 @@ input("\n--- Pulsar tecla para continuar ---\n")
 ###############################################################################
 ###############################################################################
 #BONUS: Clasificación de Dígitos
-
+'''
 
 # Funcion para leer los datos
 def readData(file_x, file_y, digits, labels):
