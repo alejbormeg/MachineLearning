@@ -581,8 +581,10 @@ def sgdRL(x,y,eta, tolerancia,tam_Minibatch=1):
 
     Returns
     -------
-    w : TYPE
-        DESCRIPTION.
+    w : vector de pesos
+    
+    it: número de épocas
+        
 
     '''
     y=y.reshape(-1,1) #transformamos y en un vector columna
@@ -608,15 +610,16 @@ def sgdRL(x,y,eta, tolerancia,tam_Minibatch=1):
         iterations=iterations + 1
         dif= np.linalg.norm(w_anterior - w)
         
-    return w
+    return w, iterations
 
 
 
 ###############################################################################################################################################################
 #EXPLICACIÓN DEL EXPERIMENTO
 a,b=simula_recta([0,2])
-print("Los coeficientes a y b: ", a, b)
+print("Obtenemos los coeficientes a y b: ", a, b)
 
+print('\n\nVAMOS A REALIZAR UN EJEMPLO DE UNA ITERACIÓN DEL EXPERIMENTO\n\n')
 x = simula_unif(100, 2, [0,2])
 #Generamos las etiquetas
 y=[]
@@ -640,25 +643,16 @@ imagenes=[]
 for i in x :
     imagenes.append(a*i[0]+b)
     
-plt.plot( x[:,0], imagenes, c = 'red', label='Recta') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+plt.plot( x[:,0], imagenes, c = 'red', label='f(x,y)') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
 plt.legend();
-plt.title("Ejercicio 2.2 Recta usada para clasificar")
-plt.xlabel('x1')
-plt.ylabel('x2')
-plt.figure()
-plt.show()
+
 
 unos=np.ones((x.shape[0],1))
 x=np.concatenate((unos,x),axis=1)
-
-w=sgdRL(x,y,0.01,0.01)
-print('Coeficientes obtenidos: ',w)
-y0 = np.where(y == -1) #capturo los índices de los elementos con -1
-y1 = np.where(y == 1) #capturo los índices de los elementos con 1
-#x_2 contiene dos arrays, uno en cada componente, el primero tiene los valores de x con etiqueta -1 y la segunda los de etiqueta 1
-x_2 = np.array([x[y0[0]],x[y1[0]]])
-plt.scatter(x_2[0][:, 1], x_2[0][:, 2],  c = 'blue', label = '-1') #Dibujamos los puntos con etiqueta 1
-plt.scatter(x_2[1][:, 1], x_2[1][:, 2],  c = 'orange', label = '1')#Dibujamos los de etiqueta -1
+#LLamamos al algoritmo RL con una tolerancia de 0.01 y un lerning rate de 0.01
+w,it=sgdRL(x,y,0.01,0.01)
+print('\n\nCoeficientes obtenidos: ',w)
+print('\n\n')
 
 #Calculamos las imagenes de los puntos (sin aplicar la función signo) y así dibujar la recta de regresión
 imagenes=[]
@@ -666,17 +660,24 @@ imagenes=[]
 for i in x :
     imagenes.append((-w[1]*i[1]-w[0])/w[2]) #y=(-ax-c)/b
      
-plt.plot( x[:,1], imagenes, c = 'red', label='Recta') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+plt.plot( x[:,1], imagenes, c = 'black', label='g(x,y)') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
 plt.ylim(0,2)
 plt.legend();
-plt.title("Recta obtenida usando Regresión Logística")
+plt.title("Ejercicio 2.2 Ejemplo RL")
 plt.xlabel('x1')
 plt.ylabel('x2')
 plt.figure()
 plt.show()
 
 Ein=err(x,y,w)
-print ('\n\nCalculamos el Error en la muestra (Ein): ', Ein)
+
+print('\n\nNúmero de épocas en converger: ', it)
+print ('Calculamos el Error en la muestra (Ein): ', Ein)
+print('\n\n')
+
+input("\n--- Pulsar tecla para continuar ---\n")
+
+
 #Probamos el modelo en otra muestra de 1000 datos
 x = simula_unif(1000, 2, [0,2])
 #Generamos las etiquetas
@@ -701,17 +702,9 @@ imagenes=[]
 for i in x :
     imagenes.append(a*i[0]+b)
     
-plt.plot( x[:,0], imagenes, c = 'red', label='Recta') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+plt.plot( x[:,0], imagenes, c = 'red', label='f(x,y)') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
 plt.legend();
-plt.title("Muestra de 1000 datos")
-plt.xlabel('x1')
-plt.ylabel('x2')
-plt.figure()
-plt.show()
 
-#Ahora con la recta obtenida por Logistic Regression
-plt.scatter(x_2[0][:, 0], x_2[0][:, 1],  c = 'blue', label = '-1') #Dibujamos los puntos con etiqueta 1
-plt.scatter(x_2[1][:, 0], x_2[1][:, 1],  c = 'orange', label = '1')#Dibujamos los de etiqueta -1
 unos=np.ones((x.shape[0],1))
 x=np.concatenate((unos,x),axis=1)
 imagenes=[]
@@ -719,15 +712,14 @@ imagenes=[]
 for i in x :
     imagenes.append((-w[1]*i[1]-w[0])/w[2]) #y=(-ax-c)/b
      
-plt.plot( x[:,1], imagenes, c = 'red', label='Recta') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+plt.plot( x[:,1], imagenes, c = 'black', label='g(x,y)') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
 plt.ylim(0,2)
 plt.legend();
-plt.title("Recta obtenida usando Regresión Logística")
+plt.title("Comportamiento en muestra de 1000 datos")
 plt.xlabel('x1')
 plt.ylabel('x2')
 plt.figure()
 plt.show()
-
 Eout=err(x,y,w)
 print ('\n\nCalculamos el Error fuera de la muestra (Eout): ', Eout)
 
@@ -737,7 +729,7 @@ print ('\n\nCalculamos el Error fuera de la muestra (Eout): ', Eout)
 input("\n--- Pulsar tecla para continuar ---\n")
     
 print ('\n\n\n COMIENZA EL EXPERIMENTO \n\n\n')
-
+epocas=0
 for i in range(100):
     print('Iteracion: ',i)
     x = simula_unif(100, 2, [0,2]) #obtenemos training set
@@ -754,7 +746,7 @@ for i in range(100):
     unos=np.ones((x.shape[0],1))
     x=np.concatenate((unos,x),axis=1) #Añadimos columna de unos al principio de x
 
-    w=sgdRL(x,y,0.01,0.01) #Ejecutamos el algoritmo con un learning rate de 0.01 y una tolerancia de 0.01
+    w,it=sgdRL(x,y,0.01,0.01) #Ejecutamos el algoritmo con un learning rate de 0.01 y una tolerancia de 0.01
     Ein+=err(x,y,w) #Calculamos el Error interno
     #Probamos el modelo en otra muestra de 1000 datos (Test Set)
     x = simula_unif(1000, 2, [0,2])
@@ -769,11 +761,13 @@ for i in range(100):
     unos=np.ones((x.shape[0],1))
     x=np.concatenate((unos,x),axis=1)
     Eout+=err(x,y,w)
+    epocas+=it
 
 
 print('\n\n ---------------- TRAS 100 ITERACIONES ----------------')
 print('Ein medio: ', Ein/100.0)
 print('Eout medio: ', Eout/100.0)
+print('Número medio de épocas en converger: ', epocas/100.0)
 
 
 input("\n--- Pulsar tecla para continuar ---\n")

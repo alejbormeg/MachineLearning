@@ -84,18 +84,24 @@ for i in x :
 y=np.array(y)
 y0 = np.where(y == -1) #capturo los índices de los elementos con -1
 y1 = np.where(y == 1) #capturo los índices de los elementos con 1
-#x_2 contiene dos arrays, uno en cada componente, el primero tiene los valores de x con etiqueta -1 y la segunda los de etiqueta 1
+#x_2 contiene dos arrays, uno en cada componente, 
+#el primero tiene los valores de x con etiqueta -1 
+#y la segunda los de etiqueta 1
 x_2 = np.array([x[y0[0]],x[y1[0]]])
 plt.scatter(x_2[0][:, 0], x_2[0][:, 1],  c = 'blue', label = '-1') #Dibujamos los puntos con etiqueta 1
 plt.scatter(x_2[1][:, 0], x_2[1][:, 1],  c = 'orange', label = '1')#Dibujamos los de etiqueta -1
 
-#Calculamos las imagenes de los puntos (sin aplicar la función signo) y así dibujar la recta de regresión
+#Calculamos las imagenes de los puntos 
+#(sin aplicar la función signo) 
+#y así dibujar la recta de regresión
 imagenes=[]
 
 for i in x :
     imagenes.append(a*i[0]+b)
-    
-plt.plot( x[:,0], imagenes, c = 'red', label='Recta') #Para representarlo, despejo x2 de la ecuación y represento la función resultante en 2D
+
+#Para representarlo, despejo x2 de la ecuación 
+#y represento la función resultante en 2D
+plt.plot( x[:,0], imagenes, c = 'red', label='Recta') 
 plt.legend()
 plt.title("Ejercicio 1.2 a)")
 plt.xlabel('x1')
@@ -590,3 +596,208 @@ Luego las conclusiones que podemos sacar una vez realizado el ejercicio serían 
 El algoritmo funciona muy bien en muestras linealmente separables, aunque si la muestra es muy grande puede ser un algoritmo lento, pero al menos garantiza una solución que separa perfectamente los elementos de la muestra. En cambio, como se ha visto en teoría, la mayoría de casos reales presentan conjuntos de entrenamiento con ruidol, lo cual hace que en la mayoría de ocasiones el algoritmo no pueda converger a una solución. Es por ello que puede ser una buena idea elegir un máximo de iteraciones a realizar (en nuestro caso hemos elegido 1000), así se reduce el tiempo de ejecución y se pueden llegar a soluciones razonables. No obstante como ya hemos comentado el error cometido por el hiperplano no es decreciente en cada iteración, por lo que elegir un número máximo de iteraciones no es sinónimo de éxito en este tipo de problemas. Ante esta problemática se crea el algoritmo PLA Pocket, cuya diferencia con el PLA es que tras actualizar los pesos, se comprueba si esta actualización tiene una mejora del Ein sobre la totalidad de los datos de la muestra, y solo se actualizan si los nuevos coeficientes mejoran el error. Esto nos asegura que el Error cometido desciende en cada iteración y por lo tanto tiene más sentido elegir un mayor número de iteraciones para el algoritmo, pues esto daría más oportunidades de mejorar los coeficientes (cuantas más iteraciones más actualizaciones de w).
 
 
+## Ejercicio 2.2 Regresión Logística
+
+### Implementación RL
+
+**Implementar Regresión Logística con las siguientes condiciones:**
+
+- **Inicializar vector de pesos con valores 0**
+- **Parar el algoritmo cuando $||w^{(t-1)}-w^t|| < 0.01$, donde $w^{t}$ representa el vector de pesos al final de la época t.**
+- **Aplicar una permutación aleatoria a los índices de los datos antes de usarlos en cada época del algoritmo**
+- **Usar tasa de aprendizaje $\eta=0.01$**
+
+Vamos a implementar el algoritmo de regresión logística, que se usa para problemas de clasificación en los cuales dada una entrada queremos proporcionar la probabilidad de que dicha entrada perteneza a una determinada clase, en lugar de asignar directamente una clase como en un programa de clasificación convencional. 
+
+El algoritmo de Regresión Logística es el siguiente: 
+
+--------------------------------------------------------
+![RL (sacado de las transparencias de clase)](LGR.png)
+--------------------------------------------------------
+
+En dicho algoritmo lo que se realiza es dado un vector de pesos, se sigue el método de gradiente descendente para obtener el vector w que minimiza el error, aunque en nuestro caso, el criterio de parada será que la distancia entre el w de una determinada iteración t y la anterior sea menor que 0.01, esto nos indicara que a partir de ese moemnto el vector de pesos apenas cambia y por lo tanto podemos parar el algoritmo, pues seguir no supondrá mucha diferencia.
+
+Como podemos ver guarda muchas similitudes con el algoritmo de SGD de la práctica anterior, por lo que lo usaremos utilizando como tamaño de minibatch 1, siguiendo la recomendación de la diapositiva. 
+
+Dicho esto el código sería el siguiente:
+
+~~~py
+def err(x, y, w):
+    '''
+    Calcula el error en Regresión Logística
+    Parameters
+    ----------
+    X : Matriz de datos.
+
+    y : vector de etiquetas.
+
+    w : vector de pesos.
+
+    '''
+    y=y.reshape(-1,1)
+    return np.mean(np.log(1 + np.exp(-y * x.dot(w))))
+
+
+def gradiente(x,y,w): #w e y deben ser vectores columna 
+    '''
+    Calcula el gradiente en el caso N=1 
+    Parameters
+    ----------
+    x : Matriz de datos
+    
+    y : vector de etiqyetas
+    
+    w : vector de pesos
+
+    '''
+    return -y * np.transpose(x) / (1 + np.exp(y * x.dot(w)))
+
+    
+def sgdRL(x,y,eta, tolerancia,tam_Minibatch=1):
+    '''
+    Algoritmo SGD aplicado a Regresión Logística
+    
+    Parameters
+    ----------
+    x : Matriz de datos
+    
+    y : vector de etiqyetas
+    
+    eta : learning rate
+    
+    tolerancia : tolerancia 
+    
+    tam_Minibatch : Tamaño del minibatch, 1 por defecto
+
+    Returns
+    -------
+    w : vector de pesos
+    
+    it: número de épocas
+        
+
+    '''
+    y=y.reshape(-1,1) 
+    N=len(y) 
+    iterations=0
+    dif=1000.0
+    w=np.zeros((x.shape[1],1)) 
+    w=w.reshape(-1,1)
+    xy=np.c_[x.copy(),y.copy()] 
+
+    while dif>tolerancia:
+        w_anterior=w.copy()  
+        np.random.shuffle(xy) #Mezclo los datos 
+
+        for i in range(0,N,tam_Minibatch): 
+            parada= i + tam_Minibatch
+            x_mini,y_mini=xy[i:parada, :-1], xy[i:parada,-1:]
+            grad=gradiente(x_mini,y_mini,w)
+            w=w - eta*grad
+            
+        iterations=iterations + 1
+        dif= np.linalg.norm(w_anterior - w)
+        
+    return w, iterations
+~~~
+
+En primer lugar definimos la función que nos da el error de regresión logística: 
+
+$$E(w)=\frac{1}{N} \sum_{i=0}^{N} ln(1+e^{-y_iw^{T}x_i}) $$
+
+Este error lo usaremos más adelante, pero como vemos gracias a las funciones de numpy, la traducción de la expresión matemática al código es muy sencilla.
+
+En segundo lugar calculamos el gradiente, que nos hará falta para el algoritmo de regresión logística. De nuevo, la traducción de la expresión matemática del gradiente al código es directa aprovechando la librería numpy.
+
+Finalmente definimos el algoritmo principal, como se puede observar es idéntico al algoritmo SGD de la práctica anterior, las únicas diferencia es que la exrpresión del gradiente cambia con respecto al de la práctica pasada, y que el criterio de parada en este caso es la tolerancia introducida por el usuario (la distancia mínima entre w en la iteración t y t-1), que será 0.01, al igual que el learning rate. También usaremos siempre tamaño de minibatch 1.
+
+
+### Función $f$ y conjunto de entrenamiento
+
+**En este ejercicio usaremos nuestra propia función objetivo $f$ y nuestro conjunto de datos $\mathcal{D}$ para ver cómo funciona regresión logística. Supondremos por simplicidad que $f$ es una probabilidad con valores 0/1 y por lo tanto la etiqueta $y$ es una función determinista de $x$**
+
+**Consideremos $d=2$ para que los datos sean visualizables, y sea $\mathcal{X}=$[0,2]x[0,2] con probabilidad uniforme de elegir cada $x \in \mathcal{X}$. Elegir una línea en el plano que pase por $\mathcal{X}$ como la frontera entre $f(x)=1$ (donde toma valores +1) y $f(x)=0$ (donde toma valores -1),para ello seleccionar dos puntos aleatorios de X y calcular la línea que pasa por ambos**  
+
+La elección de la función clasificadora f se hará según los coeficientes que devuelva la función simula_recta(0,2) proporcionada en el template, y la forma en que clasificaremos los puntos es idéntica al ejercicio 1, por lo tanto omitiremos su explicación.
+
+### Experimento
+
+**Seleccione N=100 puntos aleatorios {$x_n$} de $\mathcal{X}$ y evalúe las respuestas {$y_n$} de todos ellos respecto de la frontera elegida. Ejecute Regresión Logística para encontrar la función solución $g$ y evalúe el error $E_{out}$ usando para ello una nueva muestra grande de datos (>999). Repita el experimento 100 veces y: Calcule el valor de $E_{out}$ para el tamaño muestral N=100 y Calcule cuantas épocas tarda en converger en promedio RL para N=100 en las condiciones fijadas para su implementación**
+
+Para comprender mejor el experimento, primero haremos una explicación de qué se hará en cada una de las iteraciones.
+
+En primer lugar, dado que la recta ya la tenemos elegida por el apartado anterior (función simula_recta()) lo que haremos es hacer uso de la función x = simula_unif(100, 2, [0,2]), que nos proporcionará el conjunto x de entrenamiento (una nube de 100 puntos en 2 dimensiones elegidos con una distribución uniforme en el intervalo [0,2]). 
+
+Posteriormente asignaremos una etiqueta a cada punto como se hizo en el ejercicio 1. 
+
+Después añadimos a x una columna al principio de unos (necesaria para obtener un hiperplano afín) y aplicamos el algoritmo implementado de regresión logística: 
+
+~~~
+w,it=sgdRL(x,y,0.01,0.01)
+~~~
+
+Tal y como se pide en el ejercicio, se usa un learning rate y una tolerancia de 0.01, además el tamaño del minibatch es 1 pues no se especifica nada. 
+
+Tras aplicar el algoritmo obtenemos unos coeficientes para w, en mi caso son los siguientes: 
+
+~~~
+Coeficientes obtenidos:  [[-3.27407346]
+ [ 1.44582027]
+ [ 7.68759712]]
+~~~
+
+Y si representamos la gráfica nos sale lo siguiente: 
+
+------------------------------------------------------------
+![Función $f(x,y)$ y $g(x,y)$ en el Training Set](EjemploRL.png)
+------------------------------------------------------------
+
+Como se puede observar la recta obtenida con RL se aproxima mucho a la real, de hecho si calculamos el $E_{in}$ (Calculado con la función error de antes) y el número de épocas nos da lo siguiente: 
+
+~~~
+Número de épocas en converger:  394
+Calculamos el Error en la muestra (Ein):  0.10852776531767326
+~~~
+
+Lo cual es un error considerablemente bajo y un número de iteraciones "pequeño". Con lo que este método nos está garantizando que al menos dentro de la muestra, se comporta muy bien.
+
+Después vamos a comprobar si ese buen comportamiento se mantiene en un conjunto de Test de 1000 puntos nuevos, para ello hacemos uso de nuevo de la función simula_unif() generando una nueva muestra de 1000 puntos y asignando etiquetas con la recta $f(x,y)$.
+
+Tras esto representamos de nuevo en un gráfico los puntos con las rectas $g(x,y)$ y $f(x,y)$, obteniendo lo siguiente:
+
+![$f(x,y)$ y $g(x,y)$ en Test Set](Comportamiento1000datos.png)
+
+~~~
+Calculamos el Error fuera de la muestra (Eout):  0.09644819420074052
+~~~
+
+Como podemos ver, su comportamiento en el Test Set es muy bueno también, y se produce un hecho interesante y es que el error en el Test set es menor incluso que en el Training set, esto quizá pueda deberse a que en el Training set hemos usado un número muy bajo de elementos para entrenar en comparación con el Test set.
+
+
+Finalmente, una vez explicado el experimento procedemos a realizar estos mismos pasos 100 veces y tomaremos la media de los errores cometidos en el Training set y Test Set así como el número medio de épocas empleado por el algoritmo para converger y sacaremos algunas conclusiones. 
+
+
+Resultados obtenidos:
+
+~~~
+ ---------------- TRAS 100 ITERACIONES ----------------
+Ein medio:  0.09746667235805939
+Eout medio:  0.10773833268204051
+Número medio de épocas en converger:  367.79
+~~~
+
+Como podemos observar, el método es bastante bueno en general, pues consigue muy buenos resultados tanto en el conjunto de Entrenamiento como en el de Test, y además el número de épocas no es excesivamente alto. Por lo que este método nos proporciona una muy buena aproximación a la solución real del problema en un tiempo muy razonable, no obstante, por comentar algo en su contra, en este experimento la muestra de datos es linealmente separable pues no hay ruido, y el algoritmo PLA podría darnos una solución con error 0 a cambio de más tiempo de ejecución. 
+
+### Conclusiones
+
+Tras haber realizado los dos ejercicios podemos concluir que los dos algoritmos empleados, a pesar de que pueden usarse para resolver un mismo problema, tienen comportamientos diferentes y proporcionan soluciones distintas. En el caso del PLA si la muestra es linealmente separable es capaz de dar una solución óptima al problema, sin embargo si la muestra no es linealmente separable, en general, obtendremos un clasificador peor que empleando Regresión Logística, pues no se tiene en cuenta el error que se está cometiendo con cada actualización de los pesos, cosa que en RL pretendemos minimizar.
+
+Por otro lado, si miramos el número de épocas empleadas en cada algoritmo: 
+
+- Si la muestra es linealmente separable, en general tendremos muchos datos, y aunque PLA de la solución óptima consumirá mucho tiempo de ejecución y realizará muchas iteraciones. En cambio RL consumirá menos tiempo de ejecución y realizará menos iteraciones en general, aunque no converja a una solución óptima. 
+- Si la muestra no es linealmente separable, entonces el número de iteraciones que use PLA no será tan relevante, pues como ya se comentó el error no es decreciente en cada iteración y la solución que obtendremos será peor en general que con RL (que tendrá un comportamiento similar al caso anterior).
+
+
+# Notas
+
+La explicación de cómo se han realizado las gráficas y cómo se han representado las rectas la he omitido pues se ha hecho exactamente igual que en la práctica anterior, donde ya se explicó.
