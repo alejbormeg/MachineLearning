@@ -15,7 +15,7 @@ header-includes:
 
 # 1. Complejidad de $\mathcal{H}$ y ruido
 ## Ejercicio 1.1 
-
+### Probar funciones para generar muestras
 **Dibujar gráficas con las nubes de puntos simuladas con las siguientes condiciones**
 
 - **Considere N=50, dim=2, rango=[-50,50] con simula_unif(N,dim,rango).**
@@ -62,7 +62,7 @@ Y el gráfico generado es:
 ---------------------------------------------------------------
 
 ## Ejercicio 1.2 
-
+### Comparación de funciones clasificadoras
 **Vamos a valorar la influencia del ruido en la selección de la complejidad de la clase de funciones. Con ayuda de la función simula_unif(100,2,[-50,50]) generamos una muestra de puntos 2D a los que vamos a añadir una etiqueta usando el signo de la función $f(x,y)=y-ax-b$, es decir, el signo de la distancia de cada punto a la recta simulada con simula_recta()**
 
 - **Dibujar un grafico 2D donde los puntos muestren (usen colores) el resultado de su etiqueta. Dibuje también la recta usada para etiquetar. (observe que todos los puntos están bien clasificados respecto de la recta)**
@@ -88,8 +88,8 @@ y1 = np.where(y == 1) #capturo los índices de los elementos con 1
 #el primero tiene los valores de x con etiqueta -1 
 #y la segunda los de etiqueta 1
 x_2 = np.array([x[y0[0]],x[y1[0]]])
-plt.scatter(x_2[0][:, 0], x_2[0][:, 1],  c = 'blue', label = '-1') #Dibujamos los puntos con etiqueta 1
-plt.scatter(x_2[1][:, 0], x_2[1][:, 1],  c = 'orange', label = '1')#Dibujamos los de etiqueta -1
+plt.scatter(x_2[0][:, 0], x_2[0][:, 1],  c = 'blue', label = '-1')
+plt.scatter(x_2[1][:, 0], x_2[1][:, 1],  c = 'orange', label = '1')
 
 #Calculamos las imagenes de los puntos 
 #(sin aplicar la función signo) 
@@ -132,18 +132,17 @@ En este apartado convertimos el vector $y_0$ de índices que nos indicaba las po
 A continuación muestro el código:
 
 ~~~ py
-### Como en el apartado siguiente vamos a calcular la accuracy del clasificador (TP+TN)/(P+N) capturo los TP y TN de este método ya que (P+N)=100
-TN=len(y0[0]) #Numero de etiquetas con -1, pues antes de meter ruido la recta clasifica perfectamente
-TP=len(y1[0]) #Numero de etiquetas con +1, pues antes de meter ruido la recta clasifica perfectamente
+TN=len(y0[0]) 
+TP=len(y1[0])
 
 # Array con 10% de indices aleatorios para introducir ruido
-y0=pd.DataFrame(data=y0[0]); #Convierto la matriz X en un Dataframe de Pandas, que es más cómodo de usar 
-y0=y0.sample(frac=0.10,random_state=1); #Hacemos que tome un 10% de los datos de forma aleatoria
+y0=pd.DataFrame(data=y0[0]); 
+y0=y0.sample(frac=0.10,random_state=1); 
 y0=y0.to_numpy()
 for i in y0:
     y[i]=1
     
-TN=TN-len(y0); #Como hemos etiquetado "mal" el 10% de los elementos pues actualizamos los TN
+TN=TN-len(y0)
 ~~~
 
 Como comentarios al código, en primer lugar las variables TN y TP hacen referencia a los "True negatives" y "True positives", es decir, aquellos puntos cuya etiqueta real coincide con la etiqueta de la función que estamos usando como clasificador. En este caso, antes de modificar las etiquetas, por lo comentado en el apartado anterior, la recta clasifica perfectamente los datos, es por eso que los TP coinciden con los "Positives" de la muestra y los TN coinciden con los "Negatives" de la muestra, y al actualizar el 10% de las etiquetas , estos puntos pasarán automáticamente a estar mal clasificados por la recta y se debe restar el número de puntos elegido al valor de TP y TN que teníamos al principio. Esto se utilizará en el apartado siguiente, dónde compararemos la precisión (Accuracy) de distintas funciones al utilizarlas como clasificadores.
@@ -274,12 +273,13 @@ Por lo tanto, la conclusión que podemos sacar sobre la influencia del ruido en 
 
 Por otro lado, como hemos podido comprobar en este ejemplo, añadir funciones de una mayor complejidad para valorarlas como posibles clasificadores no es siempre sinónimo de que vamos a obtener mejores resultados que con otras funciones más simples. De hecho para esta muestra concreta una recta nos proporciona un porcentaje de acierto muy superor al de cualquier otra función. 
 
-Finalmente comentar que es preferible en este tipo de situaciones estudiar un poco más la muestra, representar los puntos gráficamente si se puede y valorar que funciones pueden ajustarse mejor a la muestra antes que tomar un conjunto muy grande de funciones complejas y probarlas.
+Finalmente comentar que es preferible en este tipo de situaciones estudiar un poco más la muestra, representar los puntos gráficamente si se puede y valorar que funciones pueden ajustarse mejor a la muestra antes que tomar un conjunto muy grande de funciones complejas y probarlas. No obstante no debe perderse de vista el hecho de que minimizar el error en Training Set no es sinónimo de mejor error $E_{out}$ , luego centrarnos en conseguir un clasificador perfecto para nuestro Training Set añadiendo funciones más complejas no es lo correcto, en su lugar tendríamos que intentar encontrar una solución que generalice bien error cometido en la muestra y que dentro de lo posible este error sea lo más bajo que podamos conseguir.
 
-# Modelos Lineales
+# 2.Modelos Lineales
 
 ## Ejercicio 2.1 PLA
 
+### Implementación del algoritmo PLA
 **Implementar la función ajusta_PLA(datos,label,max_iter,vini) que calcula el algoritmo PLA.**
 
 El Perceptrón es un algoritmo empleado generalmente en problemas de clasificación binaria en el cual tratamos de separar con un hiperplano una serie de puntos con etiquetas distintas (en nuestro caso +1 y -1), dicho esto el algoritmo sería el siguiente: 
@@ -357,6 +357,8 @@ El booleano *mejora* controla si en una pasada sobre los datos se actualiza el v
 La variable it controla el número de iteraciones y junto con el vector de pesos se devuelve al final.
 
 Finalmente w es el vector de pesos (inicializado al valor que se pase en la variable vini).
+
+### Comportamiento en Muestra Linealmente Separable
 
 **Ejecutar el algoritmo PLA con los datos simulados en los apartados 2a de la sección 1. Inicializar el algoritmo con: a) el vector cero y, b) vectores de números aleatorios en [0,1] (10 veces). Anotar el número medio de iteraciones necesarias en ambos casos para converger. Valorar el resultado relacionando el punto de inicio con el número de iteraciones**
 
@@ -475,6 +477,8 @@ Valor medio de iteraciones necesario para converger con 10 vectores random:  110
 
 En este caso el número medio de iteraciones es de 110.9, superior al obtenido con el vector inicializado a 0. Esto nos lleva a pensar que existe una relación entre el vector inicial de pesos y el número de iteraciones empleadas por el algoritmo. El problema es que a priori no sabemos con qué vector es mejor inicializar el algoritmo pues tenemos resultados muy dispares como podemos ver, es por eso que se suele optar por inicializar el vector de pesos a 0.
 
+### Comportamiento en Muestra No Linealmente Separable
+
 **Hacer lo mismo pero con el etiquetado del *2b* de la sección 1. ¿Observa algún comportamiento diferente? En caso afirmativo diga cual y las razones para que ello ocurra.**
 
 En este caso, la muestra tiene ruido, y por lo tanto no es linealmente separable, es por ello que el algoritmo PLA no convergerá. Veámoslo:
@@ -591,6 +595,7 @@ Valor medio de iteraciones necesario para converger con 10 vectores random:  100
 
 Como es de esperar, en todos y cada uno de los casos, el algoritmo consume las 1000 iteraciones máximas (pues la muestra no es linealmente separable). Y en este caso el punto inicial no influye, o al menos no de la misma forma que en el apartado anterior.
 
+### Conclusiones
 Luego las conclusiones que podemos sacar una vez realizado el ejercicio serían las siguientes: 
 
 El algoritmo funciona muy bien en muestras linealmente separables, aunque si la muestra es muy grande puede ser un algoritmo lento, pero al menos garantiza una solución que separa perfectamente los elementos de la muestra. En cambio, como se ha visto en teoría, la mayoría de casos reales presentan conjuntos de entrenamiento con ruidol, lo cual hace que en la mayoría de ocasiones el algoritmo no pueda converger a una solución. Es por ello que puede ser una buena idea elegir un máximo de iteraciones a realizar (en nuestro caso hemos elegido 1000), así se reduce el tiempo de ejecución y se pueden llegar a soluciones razonables. No obstante como ya hemos comentado el error cometido por el hiperplano no es decreciente en cada iteración, por lo que elegir un número máximo de iteraciones no es sinónimo de éxito en este tipo de problemas. Ante esta problemática se crea el algoritmo PLA Pocket, cuya diferencia con el PLA es que tras actualizar los pesos, se comprueba si esta actualización tiene una mejora del Ein sobre la totalidad de los datos de la muestra, y solo se actualizan si los nuevos coeficientes mejoran el error. Esto nos asegura que el Error cometido desciende en cada iteración y por lo tanto tiene más sentido elegir un mayor número de iteraciones para el algoritmo, pues esto daría más oportunidades de mejorar los coeficientes (cuantas más iteraciones más actualizaciones de w).
@@ -788,15 +793,184 @@ Número medio de épocas en converger:  367.79
 
 Como podemos observar, el método es bastante bueno en general, pues consigue muy buenos resultados tanto en el conjunto de Entrenamiento como en el de Test, y además el número de épocas no es excesivamente alto. Por lo que este método nos proporciona una muy buena aproximación a la solución real del problema en un tiempo muy razonable, no obstante, por comentar algo en su contra, en este experimento la muestra de datos es linealmente separable pues no hay ruido, y el algoritmo PLA podría darnos una solución con error 0 a cambio de más tiempo de ejecución. 
 
-### Conclusiones
+## Conclusiones finales
 
 Tras haber realizado los dos ejercicios podemos concluir que los dos algoritmos empleados, a pesar de que pueden usarse para resolver un mismo problema, tienen comportamientos diferentes y proporcionan soluciones distintas. En el caso del PLA si la muestra es linealmente separable es capaz de dar una solución óptima al problema, sin embargo si la muestra no es linealmente separable, en general, obtendremos un clasificador peor que empleando Regresión Logística, pues no se tiene en cuenta el error que se está cometiendo con cada actualización de los pesos, cosa que en RL pretendemos minimizar.
 
 Por otro lado, si miramos el número de épocas empleadas en cada algoritmo: 
 
 - Si la muestra es linealmente separable, en general tendremos muchos datos, y aunque PLA de la solución óptima consumirá mucho tiempo de ejecución y realizará muchas iteraciones. En cambio RL consumirá menos tiempo de ejecución y realizará menos iteraciones en general, aunque no converja a una solución óptima. 
-- Si la muestra no es linealmente separable, entonces el número de iteraciones que use PLA no será tan relevante, pues como ya se comentó el error no es decreciente en cada iteración y la solución que obtendremos será peor en general que con RL (que tendrá un comportamiento similar al caso anterior).
+- Si la muestra no es linealmente separable, entonces el número de iteraciones que use PLA no será tan relevante y además el algoritmo llegará hasta elmáximo de iteraciones permitidas, por otro lado, como ya se comentó, el error no es decreciente en cada iteración y la solución que obtendremos será peor en general que con RL (que tendrá un comportamiento similar al caso anterior).
 
+Para ver estos hechos, he generado una muestra de 100 datos como los del Experimento del ejercicio de RL y les he introducido ruido. Además he aplicado el algoritmo de Regresión Logística y PLA obteniendo los siguientes resultados: 
+
+![Comparativa](ExperimentoExtra.png)
+
+~~~
+Número de épocas en convergerRL:  189
+Número de épocas en convergerPLA:  1000
+Calculamos el Error en la muestra de RL:  0.3780138220298664
+Calculamos el Error en la muestra de PLA:  0.40349963594413013
+~~~
+
+Tal y como hemos dicho, en este caso RL obtiene mejores resultados tanto en tiempo de ejecución como en el error obtenido.
+
+# 3. Bonus
+**Considerar el conjunto de datos de los dígitos manuscritos y seleccionar las muestras de los dígitos 4 y 8. Usar los ficheros de entrenamiento (training) y test que se proporcionan. Extraer las características de intensidad promedio y simetría en la manera que se indicó en el ejercicio 3 del trabajo 1.**
+
+- **Plantear un problema de clasificación binaria que considere el conjunto de entrenamiento como datos de entrada para aprender la función $g$.**
+
+Al igual que se hizo en el en la práctica anterior, vamos a extraer de una muestra de dígitos 4 y 8 las características de Intensidad promedio y Simetría planteando el siguiente problema de clasificación binaria:
+
+Llamamos $\mathcal{X}$ al espacio de características, en nuestro caso $1\times \mathbb{R}^2$$ , $\mathcal{Y}$ al vector de etiqueta, en nuestro caso los posibles valores serían -1 y +1, de manera que -1 corresponde al dígito 4 y 1 al dígito 8. La función que queremos aproximar sería $f:\mathcal{X}\to \mathcal{Y}$, que es desconocida. La muestra que consideramos como conjunto de entrenamiento sería 
+$\mathcal{D}=${$(x_n,y_n)\in \mathcal{X}\times\mathcal{Y} : n=1...1194$} (pues N=1194 es el tamaño del training set).
+
+Tal y como hemos visto en teoría, suponemos una distribución de probabilidad $\mathcal{P}$ (desconocida también) de manera que los elementos de $\mathcal{D}$ están extraidos de forma independiente e idénticamente distribuidos.
+
+Finalmente para aproximar $f$ usaremos el siguiente conjunto de hipótesis $\mathcal{H}=${$g:\mathbb{R}^3 \to \mathbb{R} : g(x)=signo(w^Tx), w\in\mathbb{R}^3$}
+
+Finalmente para resolver el problema usaremos **ERM**(empirical risk minimization) utilizando como función de error: 
+
+$$E_{in}=\frac{1}{N}\sum_{i=1}^{N}[g(x_i) \not ={y_i}]$$
+
+Bajo estas condiciones, nuestro objetivo será encontrar el vector $w$ de pesos que repreente el hiperplano que clasifica los puntos.
+
+- **Usar un modelo de Regresión Lineal y aplicar PLA-Pocket como mejora. Responder a las siguientes cuestiones.**
+    - *Generar gráficos separados (en color) de los datos de entrenamiento y test junto con la función estimada.*
+    - *Calcular $E_{in}$ y $E_{test}$ (error sobre los datos de test).*
+    - *Obtener cotas sobre el verdadero valor de $E_{out}$ . Pueden calcularse dos cotas una basada en $E_{in}$ y otra basada en $E_{test}$. Usar una tolerancia $\delta = 0,05$. ¿Que cota es mejor?*
+
+En primer lugar, con ayuda del código que se nos proporciona en el template representamos los datos de Test Set y Training Set: 
+
+-------------------------------------------------------------
+![Training Set](TrainingSetBonus.png)
+-------------------------------------------------------------
+
+-------------------------------------------------------------
+![Test Set](TestSetBonus.png)
+-------------------------------------------------------------
+
+En primer lugar, haciendo uso del algoritmo de la Pseudoinversa de la práctica anterior calculamos los coeficientes $w$ de la recta de regresión que separa ambas regiones y el error de clasificación que se comete. Los resultados obtenidos son los siguientes:
+
+~~~
+Usamos el algoritmo de la pseudoinversa para estimar la recta de regresión
+
+Vector de pesos obtenido con Pseudoinversa:  [-0.50676351  8.25119739  0.44464113]
+Error de clasificación cometido por la Pseudoinversa:  0.22780569514237856
+~~~
+
+Como podemos observar, ya de por sí el algoritmo de la Pseudoinversa nos proporciona un buen caslificador, cometiendo un error bastante bajo en el Training Set.
+
+A continuación aplicamos el algoritmo Pocket, el cual es esencialmente el mismo que el PLA, a diferencia de que en este, tras cada época se evalúa si la actualización de los pesos que se ha producido es mejor o peor que la de la iteración pasada (entendemos que es mejor si comete un menor error de clasificación) y si es mejor los pesos se actualizan y si es peor se mantienen los de la iteración anterior. Así garantizamos que el error sea descendente en cada iteración del algoritmo y que tras x iteraciones se devuelve la mejor solución posible.
+
+Los resultados obtenidos con el algoritmo POCKET con 500 iteraciones son los siguientes: 
+
+~~~
+Vector de pesos obtenido con mejora PLA POCKET:  [[-6.50676351]
+ [94.33278003]
+ [ 4.88432863]]
+Ein obtenido con Pseudoinversa+PLA POCKET:  0.22529313232830822
+~~~
+
+Como podemos observar, se logra mejorar el error en la muestra, pero muy poco.
+
+A continuación muestro en un gráfico todos los resultados hasta ahora y el hecho de que el error del PLA POCKET efectivamente es decreciente en cada iteración.
+
+-------------------------------------------------------------
+![Comparatica Pseudoinvers vs Pseudoinversa+POCKET](AjusteBonusTrainingSet.png)
+-------------------------------------------------------------
+
+-------------------------------------------------------------
+![Error en cada iteración del PLA POCKET tras la PSeudoinversa](ErrorPseudoPocket.png)
+-------------------------------------------------------------
+
+Finalmente valoramos el comportamiento del método Pseudoinversa+PLA POCKET en el Test set, obteniendo los siguientes resultados: 
+
+~~~
+VEAMOS COMPORTAMIENTO SOBRE EL TEST SET
+Etest obtenido con Pseudoinversa+PLA POCKET:  0.2540983606557377
+~~~
+-------------------------------------------------------------
+![Pseudoinversa+PLA POCKET](PseudoPocketTestSet.png)
+-------------------------------------------------------------
+
+Como podemos ver logra un error prácticamente idéntico al del Training Set, lo cual nos puede indicar (aunque esto no es seguro) que posiblemente sea un buen estimador de la función $f$ buscada.
+
+Como curiosidad y a modo de experimento vamos a aplicar como único método el PLA POCKET, obteniendo los siguientes resultados: 
+
+~~~
+Ahora a usar el algoritmo POCKET sobre un vector de pesos inicializado a 0
+
+Vector de pesos obtenido con mejora PLA POCKET:  [[ -8.        ]
+ [138.57245022]
+ [  8.095     ]]
+
+Ein obtenido con PLA en 500 iteraciones:  0.228643216080402
+VEAMOS COMPORTAMIENTO SOBRE EL TEST SET
+Etest obtenido con PLA POCKET:  0.2459016393442623
+~~~
+
+Lo cual nos permite deducir que el algoritmo PLA POCKET se comporta bastante bien sobre los datos si ayuda de un algoritmo extra de regresión. De hecho obtiene un error menor en el Test Set, pero de nuevo esto no garantiza que el $E_{out}$ sea menor.
+
+Finalmente mostramos la gráfica de cómo desciende el error en cada iteración.
+
+-------------------------------------------------------------
+![Error PLA POCKET](ErrorPLAPOCKET.png)
+-------------------------------------------------------------
+
+**Cotas del error**
+
+Las dos cotas para $E_{out}$ que hemos visto en clase son dos, la desigualdad de Hoeffding y la de Vapnik-Chervonenkis.
+
+**Hoeffding**
+
+La expresión de la cota es la siguiente: 
+
+$$E_{out}(g)\leq E_{in}(g)+\sqrt{\frac{1}{2N}\log{\frac{2|\mathcal{H}|}{\delta}}}$$
+
+Es también llamada cota de generalización, la N sería el tamaño de la muestra, el $\delta$ sería la tolerancia y $|\mathcal{H}|$. El inconveniente es que se utiliza el cardinal de $\mathcal{H}$ y en nuestro caso dicho cardinal es $\infty$. No obstante, al estar programado el ejercicio en un ordenador, podemos "discretizar" el espacio. Dado que un flotante ocupa 64 bits, podemos suponer que $|\mathcal{H}|\approx 2^{64*3}$.
+
+Finalmente comentar que esta desigualdad puede aplicarse con $E_{test}$, la única diferencia en este caso es que $|\mathcal{H}| = 1$ pues el conjunto $\mathcal{H}$ solo continene una función, la que hemos elegido en el Training Set.
+
+Los resultados obtenidos son los siguientes: 
+
+~~~
+COTA DE HOEFFDING
+
+Pseudoinversa+PLA POCKET:
+Ein:  0.4646154745114327
+Etest:  0.3250874640883532
+
+PLA POCKET:
+Ein:  0.4679655582635265
+Etest:  0.3168907427768778
+~~~
+
+Como podemos ver es una cota bastante fina, en concreto la del $E_{test}$ pues al estar realizada sobre una muestra que no hemos entrenado con nuestro modelo previamente es más representativa de la realidad.
+
+Por otro lado la cota que se nos garantiza es bastante aceptable, lo cual nos puede indicar que nuestro clasificador es muy adecuado (tanto para la Pseudoinversa+PLA POCKET como para PLA POCKET únicamente). De hecho es curiso que la cota para el PLA POCKET sin Pseudoinversa es más baja que para la Pseudoinversa, esto se debe a que como habíamos visto antes, con PLA POCKET sin pseudoinversa se lograba un mejor resultado para el error en el Test Set, y como el término de la raiz es el mismo tanto para PLA POCKET como para Pseudoinversa+POCKET este hecho explica que la cota sea menor. 
+
+**Vapnik-Chervonenkis**
+
+La expresión de la cota es la siguiente:
+
+$$E_{out}(g)\leq E_{in}(g)+\sqrt{\frac{8}{N}\log{\frac{4((2N)^{dvc}+1)}{\delta}}}$$
+
+Dónde N es el tamaño de la muestra y $dvc$ es la dimensión de Vapnik-Chervonenkis del clasificador utilizado. Como en este caso nos encontramos ante el problema del Perceptrón en 2D, tal y como se explicó en Teoría $dvc=3$ en este caso. Luego para las condiciones del enunciado las cotas obtenidas serían: 
+
+~~~
+COTA DE VC
+
+Pseudoinversa+PLA POCKET:
+Ein:  0.6562296377990118
+
+
+PLA POCKET:
+Ein:  0.6595797215511057
+
+~~~
+
+Como podemos ver, estas cotas son menos finas que las obtenidas anteriormente con Hoeffding. No obstante tienen una ventaja con respecto a las anteriores, y es que no necesitamos saber el cardinal de $\mathcal{H}$ para dicha cota, luego no tenemos el problema que tuvimos en el ejemplo anterior, en el cual tuvimos que "discretizar" $\mathcal{H}$.
 
 # Notas
 
