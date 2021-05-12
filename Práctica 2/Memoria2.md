@@ -275,6 +275,8 @@ Por otro lado, como hemos podido comprobar en este ejemplo, añadir funciones de
 
 Finalmente comentar que es preferible en este tipo de situaciones estudiar un poco más la muestra, representar los puntos gráficamente si se puede y valorar que funciones pueden ajustarse mejor a la muestra antes que tomar un conjunto muy grande de funciones complejas y probarlas. No obstante no debe perderse de vista el hecho de que minimizar el error en Training Set no es sinónimo de mejor error $E_{out}$ , luego centrarnos en conseguir un clasificador perfecto para nuestro Training Set añadiendo funciones más complejas no es lo correcto, en su lugar tendríamos que intentar encontrar una solución que generalice bien error cometido en la muestra y que dentro de lo posible este error sea lo más bajo que podamos conseguir.
 
+Esto último se aplica también a los ejercicios que se van a realizar a continuación, aunque se hable del hecho de tratar de mejorar el $E_{in}$. De hecho no trataremos el tema de la generalización hasta el Bonus.
+
 # 2.Modelos Lineales
 
 ## Ejercicio 2.1 PLA
