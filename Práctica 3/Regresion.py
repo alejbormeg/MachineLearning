@@ -109,12 +109,12 @@ def Evaluacion( modelos, x, y, x_test, y_test, k_folds, nombre_modelo):
     tiempo_validacion_cruzada = (tiempo_fin_validacion_cruzada
                                  - tiempo_inicio_validacion_cruzada)
 
-    print(f'Tiempo empleado para validación cruzada: {tiempo_validacion_cruzada}s')
+    print(f'\nTiempo empleado para validación cruzada: {tiempo_validacion_cruzada}s\n')
     
     print('\n\nEl mejor modelo es: ', best_model)
     print('E_in calculado en cross-validation: ', best_score)
 
-    # Precisión
+    # Error cuadrático medio
     # predecimos test acorde al modelo
     best_model.fit(x, y)
     prediccion = best_model.predict(x_test)
@@ -126,6 +126,10 @@ def Evaluacion( modelos, x, y, x_test, y_test, k_folds, nombre_modelo):
                 
 
 def VisualizaDatos(x):
+    '''
+    Input:
+    - x: matriz de características a visualizar (Debe estar en 2 dimensiones)
+    '''
     X=TSNE(n_components=2).fit_transform(x)
     plt.scatter(X[:, 0], X[:, 1],  c = 'blue', marker='o') 
     plt.title('Visualización de datos de entrenamiento por medio de TSNE')
@@ -133,8 +137,43 @@ def VisualizaDatos(x):
     plt.show()
     
 def VisualizarMatrizCorrelacion(matriz_correlacion):
+    '''
+    Input:
+    - matriz_correlacion: matriz de correlaciones
+    '''
     sn.heatmap(matriz_correlacion)
+    plt.title('Mapa de calor de la matriz de correlaccion')
     plt.show()
+   
+def VisualizarElementosCorrelados(matriz_correlacion): 
+    '''
+    Input:
+    - matriz_correlacion: matriz de correlaciones
+    '''
+    matriz_correlacion = matriz_correlacion[matriz_correlacion > 0.95]
+    plt.figure(figsize=(12,8))
+    sn.heatmap(matriz_correlacion)
+    plt.title('Mapa de calor de elementos con mayor coeficiente de Pearson')
+    plt.show()
+    
+# Las siguientes funciones están tomadas del siguiente enlace: https://stackoverflow.com/questions/17778394/list-highest-correlation-pairs-from-a-large-correlation-matrix-in-pandas
+def get_redundant_pairs(df):
+    '''Get diagonal and lower triangular pairs of correlation matrix'''
+    pairs_to_drop = set()
+    cols = df.columns
+    for i in range(0, df.shape[1]):
+        for j in range(0, i+1):
+            pairs_to_drop.add((cols[i], cols[j]))
+    return pairs_to_drop
+
+def get_top_abs_correlations(matriz_corr, df):
+    au_corr = matriz_corr.unstack()
+    labels_to_drop = get_redundant_pairs(df)
+    au_corr = au_corr.drop(labels=labels_to_drop).sort_values(ascending=False)
+    strong_pairs = au_corr[abs(au_corr) > 0.9]
+    return strong_pairs    
+    
+    
 ################################################################
 ######################   Partición  ############################
 
@@ -149,7 +188,7 @@ x_entrenamiento, x_test, y_entrenamiento, y_test = train_test_split(x, y, test_s
 
 #################################################################
 ###################### Modelos a usar ###########################
-'''
+
 #Primer Modelo: Regresión Lineal con SGD para obtener vector de pesos
 #Hago un vector con modelos del mismo tipo pero variando los parámetros
 modelos1=[Pipeline([('scaler', StandardScaler()),('sgdregressor',SGDRegressor(loss=algoritmo, penalty=pen, alpha=a, learning_rate = lr, eta0 = 0.01, max_iter=5000) )]) for a in [0.0001,0.001] for algoritmo in ['squared_loss', 'epsilon_insensitive'] for pen in ['l1', 'l2'] for lr in ['optimal', 'adaptive'] ]
@@ -168,17 +207,38 @@ modelo_elegido2=Evaluacion( modelos2, x_entrenamiento, y_entrenamiento, x_test, 
 #Finalmente de entre los dos modelos elegidos previamente tomo aquel con un mejor comportamiento
 modelos=[modelo_elegido1,modelo_elegido2]
 modelo_final= Evaluacion(modelos, x_entrenamiento, y_entrenamiento, x_test, y_test, k_folds, 'Elección entre SVM o Regresion Lineal')
-'''
+
 #Vamos a probar con un último modelo
-#Tercer Modelo: Regresión lineal con SGD pero con características cuadráticas
-data_frame_pandas=pd.DataFrame(x_entrenamiento)
-matriz=data_frame_pandas.corr()
+#Tercer Modelo: Regresión lineal con SGD pero con reducción de atributos usando la matriz de correlación
+#Convertimos los datos de entrenamiento en un Data Frame de  Pandas por comodidad
+df_entrenamiento=pd.DataFrame(x_entrenamiento)
+df_test=pd.DataFrame(x_test)
+#Con esta función generamos la matriz de correlaciones
+matriz=df_entrenamiento.corr()
+
+#Visualizamos la matriz completa en un mapa de calor
 VisualizarMatrizCorrelacion(matriz)
+
+print("\n------Matriz de Correlación------\n")
+#Imprimimos la matriz de correlación
 print(matriz)
 
-'''
-modelos1=[Pipeline([('PCA',PCA(n_components=10)),('Poly', PolynomialFeatures(2)),('scaler', StandardScaler()),('sgdregressor',SGDRegressor(loss=algoritmo, penalty=pen, alpha=a, learning_rate = lr, eta0 = 0.01, max_iter=5000) )]) for a in [0.001,0.01] for algoritmo in ['squared_loss', 'epsilon_insensitive'] for pen in ['l1', 'l2'] for lr in ['optimal', 'adaptive'] ]
+#Visualizamos en un mapa de calor aquellas parejas con coeficiente de pearson mayor de 0.95 y que son susceptibles de eliminarse
+VisualizarElementosCorrelados(matriz)
+
+print("\n------Parejas con coeficiente de correlación de Pearson mayor que 0.9------\n")
+correlaciones = get_top_abs_correlations(matriz, df_entrenamiento)
+print(correlaciones)
+
+#Eliminamos las características señaladas del data frame y generamos los nuevos conjuntos de entrenamiento y test
+df_entrenamiento.drop([0,2,5,6,7,11,12,15,17,20,22,26,25,27,33,37,47,52,57,67,69,70,71,72,77],axis=1)
+df_test.drop([0,2,5,6,7,11,12,15,17,20,22,26,25,27,33,37,47,52,57,67,69,70,71,72,77],axis=1)
+x_entrenamiento_reducido = np.delete(x_entrenamiento, [0,2,5,6,7,11,12,15,17,20,22,26,25,27,33,37,47,52,57,67,69,70,71,72,77],axis=1)
+x_test_reducido= np.delete(x_test,[0,2,5,6,7,11,12,15,17,20,22,26,25,27,33,37,47,52,57,67,69,70,71,72,77],axis=1)
+
+#Hago un vector con modelos del mismo tipo pero variando los parámetros
+modelos1=[Pipeline([('scaler', StandardScaler()),('sgdregressor',SGDRegressor(loss=algoritmo, penalty=pen, alpha=a, learning_rate = lr, eta0 = 0.01, max_iter=5000) )]) for a in [0.001,0.01] for algoritmo in ['squared_loss', 'epsilon_insensitive'] for pen in ['l1', 'l2'] for lr in ['optimal', 'adaptive'] ]
 k_folds=10
 
-modelo=Evaluacion( modelos1, x_entrenamiento, y_entrenamiento, x_test, y_test, k_folds, 'Regresion Lineal usando SGD')
-'''
+#Usando cross-Validation tomo el modelo con los parámetros que mejor comportamiento tiene
+modelo=Evaluacion( modelos1, x_entrenamiento_reducido, y_entrenamiento, x_test_reducido, y_test, k_folds, 'Regresion Lineal usando SGD')
