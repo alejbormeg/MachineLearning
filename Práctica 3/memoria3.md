@@ -279,9 +279,112 @@ Error cuadratico medio en test:  318.4457322822056
 
 Luego $E_{test} \approx 318.44573$. 
 
+Tiempo empleado para validación cruzada: 21.87s
+
+
+### 10. Refinar modelo anterior
+
+En este punto vamos a tratar de seleccionar la mejor hipótesis de nuestra clase de funciones de una manera distinta a la de apartados anteriores. Vamos a usar lo siguiente: 
+
+---------------------------------------------------
+![](DilemaK.png)
+---------------------------------------------------
+
+Este hecho nos dice que si usamos Validación cruzada y hacemos grande el número k de subconjuntos, el error de validación que obtengamos será muy similar al error fuera de la muestra ($E_{out}$). 
+
+El caso ideal sería que k fuera el número de filas de x (que son 21263) de esta manera cada modelo lo entrenaríamos con todos los datos salvo uno que usaríamos para probar el modelo y al hacer esto con todos los elementos de x y hacer la media de los errores obtendríamos una aproximación muy buena del error fuera de la muestra. 
+
+Por lo tanto vamos a tratar de hacer esto. En nuestro caso hacer validación cruzada con la rejilla del apartado 8 tiene un coste computacional demasiado elevado y como considero que el objetivo de este apartado es probar est nuevo método para elegir modelo lo que vamos a hacer es considerar la misma rejilla pero con menos parámetros libres. En concreto fijaremos la tasa de aprendizaje a 'adaptive' y dejaremos libres únicamente el alpha de regularización que podría valer 0.0001 y 0.001 y la penalty que puede ser 'l1' ó 'l2'. De la misma forma hacer k=21263 es inviable , por eso vamos a coniderar que el conjunto de prueba tenga 50 elementos en cada etapa de validación cruzada y así nos sale que k=450 y se obtiene también una buena aproximación. Los resultados obtenidos son los siguientes:
 
 ~~~
-Tiempo empleado para validación cruzada: 21.87s
+------------------------------------------------------------
+ Evaluando Regresion Lineal usando SGD
+------------------------------------------------------------
+
+------ Comienza Validación Cruzada------
+Tiempo empleado para validación cruzada: 379.42930269241333s
+
+
+
+El mejor modelo es:  Pipeline(steps=[('scaler', StandardScaler()),
+                ('sgdregressor',
+                 SGDRegressor(alpha=0.001, learning_rate='adaptive',
+                              max_iter=5000, penalty='l1'))])
+E_in calculado en cross-validation:  316.6785157726209
+Error cuadratico medio en test:  316.20990825010426
+~~~
+
+El método para obtener estos datos ha sido usar la función Evaluacion() explicada anteriormente y dado que no estaba pensada para hacer este tipo de validación cruzada lo que he hecho ha sido pasar como parámetros x e y que serían los datos completos junto con x_test e y_test. Así solo habría que tener en cuenta que hay que ignorar la última frase que dice Error cuadrático en Test.
+
+Como podemos observar con esta forma de elegir la mejor hipótesis no sale el mismo resultado del apartado 4 habíamos dicho, solo que hemos entrenado con más datos y por tanto hemos refinado el modelo obteniendo mejores resultados en $E_out$ que ahora pasaría a ser :
+
+$E_{out} \approx E_{val}= 316.6785157726209$
+
+frente a los  318.4457322822056 que habíamos obtenido en el apartado anterior.
+
+
+
+### Otros modelos
+
+
+Finalmente he probado otros modelos para regresión con los que comparar el que hemos analizado en profundidad. 
+
+La métrica de error empleada en los siguientes modelos ha sido la misma siempre: error cuadrático medio. Por otro lado, la clase de hipótesis $\mathcal{H}$ ha sido la misma (el conjunto de todos los hiperplanos) y la partición de entrenamiento y test ha sido la misma que en el modelo anterior, de hecho he empleado los mismos conjuntos de entrenamiento y test para estos nuevos modelos. Finalmente el preprocesado de datos consiste en una estandarización en el caso del SVM aplicado a Regresión y una estandarización + reducción de dimensionalidad en el caso del otro modelo que explicaremos después.
+
+#### SVM aplicado a Regresión Lineal
+En clase vimos como SVM era un modelo de clasificación que permitía separar los datos mediante un pasillo de cierta amplitud $\epsilon$ de manera que nos permitía cierto margen de generalización a la hora de estimar nuevos datos con nuestro clasificador. No obstante este método se explicará con detenimiento en la próxima sección. 
+
+Pues existe una generalización de este modelo aplicado a problema de regresión. La primera diferencia que vemos con Regresión Lineal clásica es que vamos a encontrar un "pasillo" de regresión, de manera en nuestra función de error a minimizar vamos a "tolerar" un cierto error (dependiendo de la anchura que establezcamos del pasillo). Veamoslo con un ejemplo en $\mathbb{R}^2$:
+
+---------------------------------------
+![](SVR.png)
+---------------------------------------
+
+En este caso como podemos ver, vamos a tolerar una cantidad $\epsilon$ de error en los datos, de manera que la función a minimizar en este caso concreto solo tendría en cuenta la proyección de los puntos fuera del pasillo al pasillo, y los puntos de dentro directamente no se tienen en cuenta en la función a minimizar.
+
+El método de sklearn que realiza esto se denomina LinearSVR y está en sklearn.svm. 
+
+Dicha fucnión tiene diversos parámetros a ajustar, por lo que la rejilla de parámetros que usaremos será la siguiente: 
+
+- El parámetro 'Kernel' viene por defecto a 'linear' en este modelo, y ya que en esta práctica trabajamos con modelos lineales, en nuestro caso es $<x,x'>$. Este truco del kernel nos permite transformar las características a otro espacio de dimensión mayor en el que se puede encontrar una solución mejor lineal para el problema sin calcular explicitamente las coordenadas de los datos en el nuevo espacio. 
+
+- random_state=0 lo finamos una semilla para que el proceso sea reproducible en otra máquina.
+- Fijamos el máximo de iteraciones a 10000 pues es más rápido que SGD.
+- Finalmente, el parámetro que variamos será el 'epsilon' que hace referencia a la amplitud del pasillo, que probaremos los valores desde 1 a 3.5 incrementando de 0.5 en 0.5
+
+Con esto usamos la función de Evaluación ya explicada y obtenemos los siguientes resultados: 
+
+~~~
+
+ ------------------------------------------------------------
+ Evaluando SVM aplicado a Regresión
+------------------------------------------------------------
+
+------ Comienza Validación Cruzada------
+
+Pipeline(steps=[('scaler', StandardScaler()),
+                ('SVR', LinearSVR(epsilon=1, max_iter=10000, random_state=0))])
+Error cuadrático medio del modelo con cv:  325.915529564534
+Pipeline(steps=[('scaler', StandardScaler()),
+                ('SVR',
+                 LinearSVR(epsilon=1.5, max_iter=10000, random_state=0))])
+Error cuadrático medio del modelo con cv:  325.5816116323339
+Pipeline(steps=[('scaler', StandardScaler()),
+                ('SVR', LinearSVR(epsilon=2, max_iter=10000, random_state=0))])
+Error cuadrático medio del modelo con cv:  325.0377019496618
+Pipeline(steps=[('scaler', StandardScaler()),
+                ('SVR',
+                 LinearSVR(epsilon=2.5, max_iter=10000, random_state=0))])
+Error cuadrático medio del modelo con cv:  324.4560825564662
+Pipeline(steps=[('scaler', StandardScaler()),
+                ('SVR', LinearSVR(epsilon=3, max_iter=10000, random_state=0))])
+Error cuadrático medio del modelo con cv:  323.7216735757851
+Pipeline(steps=[('scaler', StandardScaler()),
+                ('SVR',
+                 LinearSVR(epsilon=3.5, max_iter=10000, random_state=0))])
+Error cuadrático medio del modelo con cv:  322.889058980888
+
+Tiempo empleado para validación cruzada: 24.131235361099243s
 
 
 
@@ -292,15 +395,133 @@ E_in calculado en cross-validation:  322.889058980888
 Error cuadratico medio en test:  329.1490070748543
 ~~~
 
+Y como podemos observar el mejor modelo sería el que más ancho tiene el pasillo. No obstante los resultados obtenidos serían peores que con el modelo elegido en los apartados anteriores, ya que tanto el error de validación cruzada como el $E_(test)$ son peores en este caso. De todas formas si ahora ejecutamos el método de Evaluacion() con la mejor hipótesis de SVR y la mejor hipótesis de Regresión Lineal obtenemos lo siguiente:
+
+~~~
+------------------------------------------------------------
+ Evaluando Elección entre SVM o Regresion Lineal
+------------------------------------------------------------
+
+------ Comienza Validación Cruzada------
+
+Pipeline(steps=[('scaler', StandardScaler()),
+                ('sgdregressor',
+                 SGDRegressor(alpha=0.001, learning_rate='adaptive',
+                              max_iter=5000, penalty='l1'))])
+Error cuadrático medio del modelo con cv:  310.28310143074907
+Pipeline(steps=[('scaler', StandardScaler()),
+                ('SVR',
+                 LinearSVR(epsilon=3.5, max_iter=10000, random_state=0))])
+Error cuadrático medio del modelo con cv:  322.889058980888
+
+Tiempo empleado para validación cruzada: 5.579780340194702s
 
 
 
+El mejor modelo es:  Pipeline(steps=[('scaler', StandardScaler()),
+                ('sgdregressor',
+                 SGDRegressor(alpha=0.001, learning_rate='adaptive',
+                              max_iter=5000, penalty='l1'))])
+E_in calculado en cross-validation:  310.28310143074907
+Error cuadratico medio en test:  318.4457322822056
+~~~
+
+Que concuerda con lo que hemos dicho.
+
+#### Regresión Lineal con SGD y reducción de dimensionalidad.
+Ahora vamos a probar con otro modelo pero que en vez de cambiar la técnica con la que obtenemos el vector de pesos $w$ vamos a cambiar el preprocesado de datos tratando de reducir la dimensionalidad. Para ello vamos a hacer uso de la matriz de correlaciones. 
+
+En primer lugar estandarizamos los datos de entrenamiento, y después transformamos el vector de características x_entrenamiento a un dataframe de Pandas que tiene el método corr() para clacular la matriz de correlaciones de manera sencilla.
+
+Antes de continuar vamos a dar una breve explicación de qué es la matriz de correlaciones y como nos puede ayudar en nuestro problema. 
+
+La matriz de correlaciones es una matriz simétrica que nos ayuda a ver la dependencia lineal entre las distintas variables de la matriz x con ayuda del coeficiente de correlación de Pearson, dicho coeficiente en la casilla (i,j) da un valor entre -1 y 1 que cuanto más cercano a +-1 significa que la variable i depende linealmente de j y cuanto más próximo a 0 expresa lo contrario. Veamos un ejemplo sencillo: 
+
+-------------------------
+![](Correlacion.png)
+-------------------------
+
+Como vemos la diagonal siempre tendrá 1 pues a depende linealmente de a, b de b, etc... Y por otro lado podemos ver como a y b no presentan una gran dependencia lineal, a y c presentan una moderada dependencia lineal y b y c una alta dependencia lineal.
+
+Lo que vamos a tratar de hacer es eliminar en este caso la variable c, ya que como depende linealmente de b no nos aporta gran información para el ajuste del modelo.
+
+Dicho esto, al calcular la matriz de correlacion obtenemos lo siguiente: 
+
+~~~
+          0         1         2   ...        78        79        80
+0   1.000000 -0.142286 -0.352568  ... -0.444806  0.104686  0.032874
+1  -0.142286  1.000000  0.818344  ...  0.169515 -0.080894 -0.081937
+2  -0.352568  0.818344  1.000000  ...  0.329972 -0.004651  0.076186
+3  -0.292156  0.940918  0.848909  ...  0.270171 -0.125929 -0.117964
+4  -0.452994  0.749778  0.964489  ...  0.406849 -0.035051  0.028868
+..       ...       ...       ...  ...       ...       ...       ...
+76  0.892903 -0.147324 -0.331976  ... -0.636372  0.089444  0.079550
+77  0.232266 -0.107907 -0.041360  ...  0.114691  0.973687  0.866231
+78 -0.444806  0.169515  0.329972  ...  1.000000  0.184720  0.132330
+79  0.104686 -0.080894 -0.004651  ...  0.184720  1.000000  0.885792
+80  0.032874 -0.081937  0.076186  ...  0.132330  0.885792  1.000000
+
+[81 rows x 81 columns]
+~~~
+
+La podemos representar en un mapa de calor: 
+
+-------------------------
+![](corrMat.png)
+-------------------------
+
+En este mapa de calor podemos ver que hay atributos con una gran dependencia lineal, vamos a tratar de filtrar un poco los datos que se muestran, mostrando aquellos con coeficiente de correlación mayor que 0.9 en valor absoluto. 
+
+-------------------------
+![](Filtro.png)
+-------------------------
+
+Las parejas con coeficiente de correlación mayor que 0.9 en valor abosluto serían:
+
+~~~
+15  25    0.997735
+72  74    0.994974
+15  75    0.992728
+12  14    0.992276
+71  73    0.990012
+  
+15  35    0.903247
+35  75    0.901795
+0   55    0.901438
+42  44    0.900145
+12  24   -0.913154
+Length: 75, dtype: float64
+~~~
+
+Luego eliminando uno de los miembros de cada pareja eliminamos el siguiente vector de características: 
+
+$v=[0,2,5,6,7,11,12,15,17,20,22,26,25,27,33,37,47,52,57,67,69,70,71,72,77]$
+
+Y con la nueva matriz de entrenamiento de dimensión 58 aplicamos SGDRegressor con la misma rejilla de parámetros del primer apartado, obteniendo los siguientes resultados: 
+
+~~~
+
+ ------------------------------------------------------------
+ Evaluando Regresion Lineal usando SGD
+------------------------------------------------------------
+
+------ Comienza Validación Cruzada------
+
+Tiempo empleado para validación cruzada: 260.825745344162s
 
 
 
+El mejor modelo es:  Pipeline(steps=[('scaler', StandardScaler()),
+                ('sgdregressor',
+                 SGDRegressor(alpha=0.001, learning_rate='adaptive',
+                              max_iter=5000, penalty='l1'))])
+E_in calculado en cross-validation:  341.7307085866916
+Error cuadratico medio en test:  340.77195194507397
+~~~
 
+Como podemos ver, no ha sido una buena práctica la eliminación de atributos, ya que aunque el mejor modelo resulta ser el mismo que hemos explicado al principio del guión, además de no mejorar el error obtenido tanto en validación como en test dicho error se empeora. Esto puede deberse a que la eliminación de dichos atributos han hecho perder información al modelo para ajustar mejor los datos y por lo tanto los explica peor. 
 
-
+Como conclusión, la reducción de la dimensión no es una práctica que siempre de buenos resultados y hay que tener mucho cuidado para no eliminar atributos que aporten información al modelo. En mi caso quizá tendría que haber puesto una cota mayor al coeficiente de correlación de pearson del tipo 0.95 en valor absoluto para eliminar características que verdaderamente no aporten información relevante.
 
 
 
@@ -428,5 +649,14 @@ https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html
 
 
 SGD:
+
 https://scikit-learn.org/stable/modules/sgd.html
+
 https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDRegressor.html
+
+SVR:
+https://scikit-learn.org/stable/modules/svm.html#regression
+
+https://www.iartificial.net/maquinas-de-vectores-de-soporte-svm/#El_truco_del_kernel_en_SVM
+
+https://www.jacobsoft.com.mx/es_mx/support-vector-regression/

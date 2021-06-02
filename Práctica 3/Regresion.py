@@ -167,7 +167,7 @@ def VisualizarElementosCorrelados(matriz_correlacion):
     Input:
     - matriz_correlacion: matriz de correlaciones
     '''
-    matriz_correlacion = matriz_correlacion[matriz_correlacion > 0.95]
+    matriz_correlacion = matriz_correlacion[matriz_correlacion > 0.9]
     plt.figure(figsize=(12,8))
     sn.heatmap(matriz_correlacion)
     plt.title('Mapa de calor de elementos con mayor coeficiente de Pearson')
@@ -211,16 +211,21 @@ input("\n--- Pulsar tecla para continuar ---\n")
 
 #################################################################
 ###################### Modelos a usar ###########################
+k_folds=10 #Número de particiones para cross-Validation
 
+'''
 print('\nPrimer Modelo: Regresión Lineal con SGD para obtener vector de pesos\n')
 #Primer Modelo: Regresión Lineal con SGD para obtener vector de pesos
 #Hago un vector con modelos del mismo tipo pero variando los parámetros
 modelos1=[Pipeline([('scaler', StandardScaler()),('sgdregressor',SGDRegressor(loss='squared_loss', penalty=pen, alpha=a, learning_rate = lr, eta0 = 0.01, max_iter=5000) )]) for a in [0.0001,0.001] for pen in ['l1', 'l2'] for lr in ['optimal', 'adaptive'] ]
-k_folds=10 #Número de particiones para cross-Validation
 
 #Usando cross-Validation tomo el modelo con los parámetros que mejor comportamiento tiene
 modelo_elegido1=Evaluacion( modelos1, x_entrenamiento, y_entrenamiento, x_test, y_test, k_folds, 'Regresion Lineal usando SGD')
-
+#Estimacion del Eout con validación cruzada y k grande
+modelos1=[Pipeline([('scaler', StandardScaler()),('sgdregressor',SGDRegressor(loss='squared_loss', penalty=pen, alpha=a, learning_rate = 'adaptive', eta0 = 0.01, max_iter=5000) )]) for a in [0.0001,0.001] for pen in ['l1', 'l2']]
+Evaluacion( modelos1, x, y, x_test, y_test, 450, 'Regresion Lineal usando SGD')
+'''
+'''
 input("\n--- Pulsar tecla para continuar ---\n")
 print('\nSegundo Modelo: Regresión lineal con SVM\n')
 #Segundo Modelo: Regresión Lineal con SVM
@@ -233,7 +238,7 @@ modelo_elegido2=Evaluacion( modelos2, x_entrenamiento, y_entrenamiento, x_test, 
 #Finalmente de entre los dos modelos elegidos previamente tomo aquel con un mejor comportamiento
 modelos=[modelo_elegido1,modelo_elegido2]
 modelo_final= Evaluacion(modelos, x_entrenamiento, y_entrenamiento, x_test, y_test, k_folds, 'Elección entre SVM o Regresion Lineal')
-
+'''
 input("\n--- Pulsar tecla para continuar ---\n")
 print('\nTercer Modelo: Regresión lineal con SGD para obtener vector de pesos y reducción de dimensionalidad con matriz de correlación\n')
 #Vamos a probar con un último modelo
@@ -264,10 +269,10 @@ print(correlaciones)
 input("\n--- Pulsar tecla para continuar ---\n")
 
 #Eliminamos las características señaladas del data frame y generamos los nuevos conjuntos de entrenamiento y test
-df_entrenamiento.drop([0,2,5,6,7,11,12,15,17,20,22,26,25,27,33,37,47,52,57,67,69,70,71,72,77],axis=1)
-df_test.drop([0,2,5,6,7,11,12,15,17,20,22,26,25,27,33,37,47,52,57,67,69,70,71,72,77],axis=1)
-x_entrenamiento_reducido = np.delete(x_entrenamiento, [0,2,5,6,7,11,12,15,17,20,22,26,25,27,33,37,47,52,57,67,69,70,71,72,77],axis=1)
-x_test_reducido= np.delete(x_test,[0,2,5,6,7,11,12,15,17,20,22,26,25,27,33,37,47,52,57,67,69,70,71,72,77],axis=1)
+df_entrenamiento.drop([0,2,5,6,7,11,12,15,17,22,26,25,27,33,37,47,52,57,67,69,71,72,77],axis=1)
+df_test.drop([0,2,5,6,7,11,12,15,17,22,26,25,27,33,37,47,52,57,67,69,71,72,77],axis=1)
+x_entrenamiento_reducido = np.delete(x_entrenamiento, [0,2,5,6,7,11,12,15,17,22,26,25,27,33,37,47,52,57,67,69,71,72,77],axis=1)
+x_test_reducido= np.delete(x_test,[0,2,5,6,7,11,12,15,17,22,26,25,27,33,37,47,52,57,67,69,71,72,77],axis=1)
 
 input("\n--- Pulsar tecla para continuar ---\n")
 #Hago un vector con modelos del mismo tipo pero variando los parámetros
