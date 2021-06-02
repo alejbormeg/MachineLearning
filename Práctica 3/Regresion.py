@@ -23,6 +23,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.svm import LinearSVR
 from sklearn.feature_selection import SelectFromModel
 from sklearn.svm import LinearSVC
+from sklearn.model_selection import GridSearchCV
 import time
 
 
@@ -62,8 +63,6 @@ def LeerDatos (nombre_fichero, cabecera = None):
 
 
 ### Validación cruzada
-
-
 def Evaluacion( modelos, x, y, x_test, y_test, k_folds, nombre_modelo):
     '''
     Función para automatizar el proceso de experimento: 
@@ -98,8 +97,8 @@ def Evaluacion( modelos, x, y, x_test, y_test, k_folds, nombre_modelo):
     best_score = 10000
     for model in modelos:
         print(model)
-        score = -np.mean(cross_val_score(model, x, y, cv = 5, scoring="neg_mean_squared_error",n_jobs=-1))
-        print(score)
+        score = -np.mean(cross_val_score(model, x, y, cv = k_folds, scoring="neg_mean_squared_error",n_jobs=-1))
+        print('Error cuadrático medio del modelo con cv: ',score)
         #plot_confusion_matrix(model, x_train_reduced, y_train_unidime)
         if best_score > score:
             best_score = score
@@ -136,6 +135,24 @@ def VisualizaDatos(x):
     plt.legend()
     plt.show()
     
+    
+    
+def VisualizarEstandarizacion(x):
+    '''
+    Input:
+    - x: matriz de características a estandarizar
+    '''
+    print('\nMatriz de características sin estandarizar: \n')
+    print(x)
+    print('\nMedia: ', x.mean())
+    print('\nVarianza: ', x.var())
+    scaler=StandardScaler()
+    x=scaler.fit_transform(x)
+    
+    print ('\nMatriz de características estandarizada: \n')
+    print(x)
+    print('\nMedia: ', x.mean())
+    print('\nVarianza: ', x.var())
 def VisualizarMatrizCorrelacion(matriz_correlacion):
     '''
     Input:
@@ -177,26 +194,35 @@ def get_top_abs_correlations(matriz_corr, df):
 ################################################################
 ######################   Partición  ############################
 
+print('\n------------Leemos los datos ---------------\n')
 x,y=LeerDatos(NOMBRE_FICHERO_REGRESION, 0)
 x_entrenamiento, x_test, y_entrenamiento, y_test = train_test_split(x, y, test_size = 0.2, random_state = 1)
+
+input("\n--- Pulsar tecla para continuar ---\n")
 
 ################################################################
 ###################### Visualización ###########################
 
 #Descomentar si se quiere visualizar
 #VisualizaDatos(x_entrenamiento)
+print('Visualización del proceso de Estandarizar los datos')
+VisualizarEstandarizacion(x_entrenamiento)
+input("\n--- Pulsar tecla para continuar ---\n")
 
 #################################################################
 ###################### Modelos a usar ###########################
 
+print('\nPrimer Modelo: Regresión Lineal con SGD para obtener vector de pesos\n')
 #Primer Modelo: Regresión Lineal con SGD para obtener vector de pesos
 #Hago un vector con modelos del mismo tipo pero variando los parámetros
-modelos1=[Pipeline([('scaler', StandardScaler()),('sgdregressor',SGDRegressor(loss=algoritmo, penalty=pen, alpha=a, learning_rate = lr, eta0 = 0.01, max_iter=5000) )]) for a in [0.0001,0.001] for algoritmo in ['squared_loss', 'epsilon_insensitive'] for pen in ['l1', 'l2'] for lr in ['optimal', 'adaptive'] ]
+modelos1=[Pipeline([('scaler', StandardScaler()),('sgdregressor',SGDRegressor(loss='squared_loss', penalty=pen, alpha=a, learning_rate = lr, eta0 = 0.01, max_iter=5000) )]) for a in [0.0001,0.001] for pen in ['l1', 'l2'] for lr in ['optimal', 'adaptive'] ]
 k_folds=10 #Número de particiones para cross-Validation
 
 #Usando cross-Validation tomo el modelo con los parámetros que mejor comportamiento tiene
 modelo_elegido1=Evaluacion( modelos1, x_entrenamiento, y_entrenamiento, x_test, y_test, k_folds, 'Regresion Lineal usando SGD')
 
+input("\n--- Pulsar tecla para continuar ---\n")
+print('\nSegundo Modelo: Regresión lineal con SVM\n')
 #Segundo Modelo: Regresión Lineal con SVM
 #Hago un vector con modelos del mismo tipo pero variando los parámetros
 modelos2=[Pipeline([('scaler', StandardScaler()),('SVR',LinearSVR(epsilon=e, random_state=0, max_iter=10000))]) for e in [1, 1.5, 2, 2.5, 3, 3.5]]
@@ -208,6 +234,8 @@ modelo_elegido2=Evaluacion( modelos2, x_entrenamiento, y_entrenamiento, x_test, 
 modelos=[modelo_elegido1,modelo_elegido2]
 modelo_final= Evaluacion(modelos, x_entrenamiento, y_entrenamiento, x_test, y_test, k_folds, 'Elección entre SVM o Regresion Lineal')
 
+input("\n--- Pulsar tecla para continuar ---\n")
+print('\nTercer Modelo: Regresión lineal con SGD para obtener vector de pesos y reducción de dimensionalidad con matriz de correlación\n')
 #Vamos a probar con un último modelo
 #Tercer Modelo: Regresión lineal con SGD pero con reducción de atributos usando la matriz de correlación
 #Convertimos los datos de entrenamiento en un Data Frame de  Pandas por comodidad
@@ -216,19 +244,24 @@ df_test=pd.DataFrame(x_test)
 #Con esta función generamos la matriz de correlaciones
 matriz=df_entrenamiento.corr()
 
+input("\n--- Pulsar tecla para continuar ---\n")
 #Visualizamos la matriz completa en un mapa de calor
 VisualizarMatrizCorrelacion(matriz)
+input("\n--- Pulsar tecla para continuar ---\n")
 
 print("\n------Matriz de Correlación------\n")
 #Imprimimos la matriz de correlación
 print(matriz)
+input("\n--- Pulsar tecla para continuar ---\n")
 
 #Visualizamos en un mapa de calor aquellas parejas con coeficiente de pearson mayor de 0.95 y que son susceptibles de eliminarse
 VisualizarElementosCorrelados(matriz)
+input("\n--- Pulsar tecla para continuar ---\n")
 
 print("\n------Parejas con coeficiente de correlación de Pearson mayor que 0.9------\n")
 correlaciones = get_top_abs_correlations(matriz, df_entrenamiento)
 print(correlaciones)
+input("\n--- Pulsar tecla para continuar ---\n")
 
 #Eliminamos las características señaladas del data frame y generamos los nuevos conjuntos de entrenamiento y test
 df_entrenamiento.drop([0,2,5,6,7,11,12,15,17,20,22,26,25,27,33,37,47,52,57,67,69,70,71,72,77],axis=1)
@@ -236,6 +269,7 @@ df_test.drop([0,2,5,6,7,11,12,15,17,20,22,26,25,27,33,37,47,52,57,67,69,70,71,72
 x_entrenamiento_reducido = np.delete(x_entrenamiento, [0,2,5,6,7,11,12,15,17,20,22,26,25,27,33,37,47,52,57,67,69,70,71,72,77],axis=1)
 x_test_reducido= np.delete(x_test,[0,2,5,6,7,11,12,15,17,20,22,26,25,27,33,37,47,52,57,67,69,70,71,72,77],axis=1)
 
+input("\n--- Pulsar tecla para continuar ---\n")
 #Hago un vector con modelos del mismo tipo pero variando los parámetros
 modelos1=[Pipeline([('scaler', StandardScaler()),('sgdregressor',SGDRegressor(loss=algoritmo, penalty=pen, alpha=a, learning_rate = lr, eta0 = 0.01, max_iter=5000) )]) for a in [0.001,0.01] for algoritmo in ['squared_loss', 'epsilon_insensitive'] for pen in ['l1', 'l2'] for lr in ['optimal', 'adaptive'] ]
 k_folds=10
