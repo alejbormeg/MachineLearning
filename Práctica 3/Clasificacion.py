@@ -106,13 +106,15 @@ def Evaluacion( modelos, x, y, x_test, y_test, k_folds, nombre_modelo):
     print(f'Tiempo empleado para validación cruzada: {tiempo_validacion_cruzada}s')
     
     print('\n\nEl mejor modelo es: ', best_model)
-    print('E_in calculado en cross-validation: ', best_score)
+    print('E_val calculado en cross-validation: ', best_score)
 
     # Precisión
     # predecimos test acorde al modelo
     best_model.fit(x, y)
     Etest = best_model.score(x_test,y_test)
-    print("Error cuadratico medio en test: ",Etest)
+    Ein = best_model.score(x_entrenamiento,y_entrenamiento)
+    print('Accuracy en entrenamiento: ', Ein)
+    print("Accuracy en test: ",Etest)
 
     return best_model
 
@@ -132,6 +134,25 @@ def VisualizaDatos(x):
     plt.title('Visualización de datos de entrenamiento por medio de TSNE')
     plt.legend()
     plt.show()
+    
+
+   
+def VisualizarEstandarizacion(x):
+    '''
+    Input:
+    - x: matriz de características a estandarizar
+    '''
+    print('\nMatriz de características sin estandarizar: \n')
+    print(x)
+    print('\nMedia: ', x.mean())
+    print('\nVarianza: ', x.var())
+    scaler=StandardScaler()
+    x=scaler.fit_transform(x)
+    
+    print ('\nMatriz de características estandarizada: \n')
+    print(x)
+    print('\nMedia: ', x.mean())
+    print('\nVarianza: ', x.var())
     
 ################################################################
 ######################   Partición  ############################
@@ -173,39 +194,37 @@ input("\n--- Pulsar tecla para continuar ---\n")
 ###################### Visualización ###########################
 #DESCOMENTAR PARA VER RESULTADO DE TSNE
 
-#VisualizaDatos(x_entrenamiento)    
+VisualizaDatos(x_entrenamiento)    
 
 ################################################################
 ################ PREPROCESAMIENTO DE DATOS y MODELOS #####################
-k_folds=5
-
-#Primer modelo
-print('\nPrimer Modelo: Regresión Logística con SGD para obtener vector de pesos aplicado a clasificación multiclase\n')
+print ('Visualizamos el proceso de estandarización de los datos')
+VisualizarEstandarizacion(x_entrenamiento)
 input("\n--- Pulsar tecla para continuar ---\n")
 
-#El mejor modelo es:  Pipeline(steps=[('scaler', StandardScaler()),
-#                ('Regresion Logística',
-#                 SGDClassifier(alpha=0.001, average=True, eta0=0.0001,
-#                               max_iter=10000, random_state=1))])
-modelos1=[Pipeline([('scaler', StandardScaler()),('Regresion Logística',SGDClassifier(loss='hinge', penalty=pen, alpha=a,max_iter=10000,random_state=1,learning_rate=lr,eta0=0.001, early_stopping=early,average=av))]) for pen in ['l1','l2'] for a in [0.001,0.01] for lr in ['optimal', 'adaptive'] for early in [True, False] for av in [True, False]]          
+k_folds=5
+#Primer modelo
+print('\nPrimer Modelo: Regresión Logística con SGD para obtener vector de pesos aplicado a clasificación multiclase\n')
+
+modelos1=[Pipeline([('scaler', StandardScaler()),('Regresion Logística',SGDClassifier(loss='log', penalty=pen, alpha=a,max_iter=10000,random_state=1,learning_rate=lr,eta0=0.01, early_stopping=early,average=av))]) for pen in ['l1','l2'] for a in [0.001,0.01] for lr in ['optimal', 'adaptive'] for early in [True, False] for av in [True, False]]          
 modelo_elegido1=Evaluacion( modelos1, x_entrenamiento, y_entrenamiento, x_test, y_test, k_folds, 'Regresion Logística')
+#Estimacion del Eout con validación cruzada y k grande
+modelos1=[Pipeline([('scaler', StandardScaler()),('Regresion Logística',SGDClassifier(loss='log', penalty='l2', alpha=0.001, max_iter=10000,random_state=1,learning_rate='optimal',eta0=0.01, early_stopping=False,average=True))])]   
+Evaluacion( modelos1, x, y, x_test, y_test, 585, 'Regresion Logística usando SGD')
+
+input("\n--- Pulsar tecla para continuar ---\n")
 
 #Segundo modelo
 print('\Segundo Modelo: SVM aplicado a clasificación multiclase\n')
+modelos2=[Pipeline([('scaler', StandardScaler()),('SVM',SVC(C=c, kernel='linear', shrinking=True ,max_iter=-1,decision_function_shape='ovr',break_ties=b,random_state=1))]) for c in [1, 1.5] for b in [True,False]]            
+modelo_elegido1=Evaluacion( modelos2, x_entrenamiento, y_entrenamiento, x_test, y_test, k_folds, 'SVM')
+
 input("\n--- Pulsar tecla para continuar ---\n")
-modelos2=[Pipeline([('scaler', StandardScaler()),('SVM',SVC(C=1.5, kernel='linear', shrinking=True ,max_iter=-1,decision_function_shape='ovr',break_ties=True,random_state=1))])]            
-modelo_elegido1=Evaluacion( modelos2, x_entrenamiento, y_entrenamiento, x_test, y_test, k_folds, 'Regresion Logística')
 
 #Tercer Modelo
 print('\Tercer Modelo: SVM aplicado a clasificación multiclase con reducción de dimensionalidad y características cuadráticas\n')
-input("\n--- Pulsar tecla para continuar ---\n")
-modelos1=[Pipeline([('scaler', StandardScaler()),('pca',PCA(n_components=2)),('poly',PolynomialFeatures(2,include_bias='False')),('Regresion Logística',SGDClassifier(loss='hinge', penalty=pen, alpha=a,max_iter=10000,epsilon=e,random_state=1,learning_rate=lr,eta0=et0, early_stopping=early,average=av))]) for pen in ['l1','l2'] for a in [0.001,0.01,0.1] for e in [0.1,0.3,0.5] for lr in ['optimal', 'adaptive'] for early in [True, False] for av in [True, False] for et0 in [0.0001,0.001] ]          
-modelo_elegido1=Evaluacion( modelos1, x_entrenamiento, y_entrenamiento, x_test, y_test, k_folds, 'Regresion Logística')
-
-
-modelos2=[Pipeline([('scaler', StandardScaler()),('pca',PCA(n_components=2)),('poly',PolynomialFeatures(2,include_bias='False')),('SVM',SVC(C=c, kernel='linear', shrinking=True ,max_iter=-1,decision_function_shape='ovr',break_ties=b,random_state=1))]) for c in [1, 1.5] for b in [True,False]]            
-modelo_elegido2=Evaluacion( modelos2, x_entrenamiento, y_entrenamiento, x_test, y_test, k_folds, 'Regresion Logística')
-
+modelo3=[Pipeline([('scaler', StandardScaler()),('pca',PCA(n_components=2)),('poly',PolynomialFeatures(2,include_bias='False')),('SVM',SVC(C=c, kernel='linear', shrinking=True ,max_iter=-1,decision_function_shape='ovr',break_ties=b,random_state=1))]) for c in [1, 1.5] for b in [True,False]]         
+modelo_elegido2=Evaluacion( modelos3,x_entrenamiento, y_entrenamiento, x_test, y_test, k_folds, 'SVM')
 
 
 
